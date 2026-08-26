@@ -1360,10 +1360,107 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT II — THE VESSEL                                               */}
+      {/* ACT II — GENESIS                                                  */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 5 — APPROACH ================= */}
+      {/* ================= SCENE 5 — ORIGIN ================= */}
+      <Scene id="origin" act={2}>
+        <GridBackdrop opacity={0.35} />
+        <GiantWord text="Genesis" className="inset-x-0 top-[16%] text-center text-[18vw]" opacity={0.04} />
+        <CornerFrame />
+        <TechLabel n="LOG" className="left-[8%] top-[22%]">Archive · 2019</TechLabel>
+        <TechLabel n="DAT" className="right-[8%] top-[28%]">1,100 prototypes</TechLabel>
+        <ActMark act={2} />
+        <div data-content className="sticky top-0 flex h-screen items-center p-8 md:p-24">
+          <div className="max-w-2xl space-y-10">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-white/55">
+              Act II · Where it began
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.5rem)] font-bold uppercase leading-[1.05] tracking-tighter">
+              It started with<br />
+              <span className="text-white/55">a broken pair.</span>
+            </h2>
+            <p data-reveal className="max-w-lg text-base font-light leading-relaxed text-white/65">
+              2019. A drawer full of flagship earbuds, all failing the same
+              test: do they disappear when you close your eyes? None did.
+              So we took them apart. Measured every curve. Then threw
+              the drawings away and started from the air itself.
+            </p>
+            <div data-reveal className="flex flex-wrap gap-3">
+              <SpecChip k="Year" v="2019" />
+              <SpecChip k="Destroyed" v="47 pairs" />
+              <SpecChip k="Measurments" v="12,000+" />
+            </div>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 6 — PHILOSOPHY ================= */}
+      <Scene id="philosophy" act={2}>
+        <GiantWord text="Invisible" className="inset-x-0 bottom-[18%] text-center text-[16vw]" opacity={0.04} />
+        <ActMark act={2} />
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
+          <span data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.55em] text-white/55">
+            Design principle 001
+          </span>
+          <blockquote data-reveal className="max-w-3xl font-display text-[clamp(1.8rem,4.5vw,3.8rem)] font-light uppercase leading-[1.2] tracking-[0.12em] text-white/75">
+            The best technology<br />
+            is the technology<br />
+            you forget is there.
+          </blockquote>
+          <p data-reveal className="mt-10 max-w-md text-sm font-light leading-relaxed text-white/55">
+            Every engineering decision was measured against one question:
+            does this disappear? If you can feel the earbud, we failed.
+            If you can hear the technology, we failed. The goal is absence —
+            pure, unmediated listening.
+          </p>
+          <div data-reveal className="mt-12 grid grid-cols-3 gap-8">
+            {["Invisible fit", "Invisible latency", "Invisible weight"].map((t) => (
+              <div key={t} className="text-center">
+                <div className="mx-auto mb-3 h-px w-12 bg-white/25" />
+                <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">{t}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 7 — OBSESSION ================= */}
+      <Scene id="obsession" act={2}>
+        <GridBackdrop opacity={0.3} />
+        <ActMark act={2} />
+        <div data-content className="sticky top-0 flex h-screen items-end justify-start p-8 md:p-20">
+          <div className="max-w-xl space-y-8">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-[#ffb45e]/80">
+              The obsession
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2.2rem,5.5vw,5rem)] font-bold uppercase leading-none tracking-tighter">
+              Eleven hundred<br /><span className="text-white/55">iterations.</span>
+            </h2>
+            <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+              Prototypes that melted. Prototypes that cracked. Prototypes
+              that sounded perfect but weighed too much. Each failure taught
+              us something the success never could.
+            </p>
+            <div data-reveal className="grid grid-cols-2 gap-4">
+              {["1,100", "47", "12,000", "0"].map((v, i) => (
+                <div key={i} className="border-l border-white/15 pl-4">
+                  <p className="font-display text-2xl font-bold tracking-tighter">{v}</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                    {["prototypes", "flagships destroyed", "measurements", "compromises"][i]}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================================================================ */}
+      {/* ACT III — THE VESSEL                                              */}
+      {/* ================================================================ */}
+
+      {/* ================= SCENE 8 — APPROACH ================= */}
       <Scene id="approach" act={2}>
         <GridBackdrop opacity={0.4} />
         <GiantWord text="The Vessel" className="inset-x-0 top-[18%] text-center text-[15vw]" opacity={0.05} />
@@ -1491,10 +1588,159 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT III — EMERGENCE                                               */}
+      {/* ACT IV — MATERIAL WORLD                                          */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 9 — GLIMPSE ================= */}
+      {/* ================= SCENE 12 — GRAPHENE ================= */}
+      <Scene id="graphene" act={4}>
+        <GridBackdrop opacity={0.35} />
+        <GiantWord text="Graphene" className="inset-x-0 top-[14%] text-center text-[16vw]" opacity={0.05} />
+        <CornerFrame />
+        <TechLabel n="MAT" className="left-[8%] top-[22%]">Atomic lattice · 2D</TechLabel>
+        <TechLabel n="THK" className="right-[8%] top-[68%]">3 µm diaphragm</TechLabel>
+        <ActMark act={4} />
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-20">
+          <div className="max-w-xl space-y-10">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-[#57e6ff]/70">
+              Material I · The soul of the driver
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2.2rem,5vw,4.5rem)] font-bold uppercase leading-none tracking-tighter">
+              One atom thick.<br /><span className="text-white/55">Infinite resolve.</span>
+            </h2>
+            <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+              Graphene is carbon arranged in a single atomic sheet — stronger
+              than steel, lighter than air, and rigid enough to push sound
+              without bending. We grow it, peel it, and suspend it across
+              a gold surround like a drum skin for music.
+            </p>
+            <div data-reveal className="flex flex-wrap gap-3">
+              <SpecChip k="Thickness" v="3 µm" />
+              <SpecChip k="Tensile" v="130 GPa" />
+              <SpecChip k="Weight" v="0.77 mg" />
+            </div>
+          </div>
+          <div className="hidden md:block">
+            {/* Animated graphene lattice visualization */}
+            <svg viewBox="0 0 200 200" className="h-64 w-64" aria-hidden>
+              <defs>
+                <linearGradient id="graphGrad" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#57e6ff" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#57e6ff" stopOpacity="0.2" />
+                </linearGradient>
+              </defs>
+              {/* Hexagonal lattice pattern */}
+              {Array.from({ length: 7 }).map((_, row) =>
+                Array.from({ length: 7 - Math.abs(row - 3) }).map((_, col) => {
+                  const x = 100 + (col - (7 - Math.abs(row - 3)) / 2) * 22 + (row % 2) * 11;
+                  const y = 60 + row * 18;
+                  return (
+                    <g key={`${row}-${col}`}>
+                      <circle cx={x} cy={y} r="2.5" fill="#57e6ff" opacity="0.7">
+                        <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" begin={`${(row + col) * 0.1}s`} repeatCount="indefinite" />
+                      </circle>
+                      {col < 6 - Math.abs(row - 3) && (
+                        <line x1={x} y1={y} x2={x + 22} y2={y} stroke="url(#graphGrad)" strokeWidth="0.5" />
+                      )}
+                    </g>
+                  );
+                })
+              )}
+            </svg>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 13 — CERAMIC ================= */}
+      <Scene id="ceramic" act={4}>
+        <ActMark act={4} />
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-10 p-8">
+          <div className="text-center">
+            <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/55">
+              Material II · The shell
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
+              Ceramic gloss.<br /><span className="text-white/55">Fingerprint-proof.</span>
+            </h2>
+          </div>
+          <div className="w-full max-w-2xl">
+            {/* Material surface visualization */}
+            <svg viewBox="0 0 600 120" className="h-24 w-full" aria-hidden>
+              <defs>
+                <linearGradient id="ceramGrad" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stopColor="#1a1c20" />
+                  <stop offset="30%" stopColor="#2a2c31" />
+                  <stop offset="50%" stopColor="#3a3c41" />
+                  <stop offset="70%" stopColor="#2a2c31" />
+                  <stop offset="100%" stopColor="#1a1c20" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="20" width="600" height="80" fill="url(#ceramGrad)" rx="4" />
+              <rect x="0" y="20" width="600" height="80" fill="none" stroke="rgba(255,255,255,0.15)" rx="4" />
+              {/* Specular highlight traveling across */}
+              <rect x="0" y="20" width="600" height="80" fill="url(#ceramGrad)" rx="4" opacity="0.5">
+                <animate attributeName="opacity" values="0.5;0.8;0.5" dur="3s" repeatCount="indefinite" />
+              </rect>
+              <g fontFamily="ui-monospace, monospace" fontSize="9" letterSpacing="0.3em" fill="rgba(255,255,255,0.6)">
+                <text x="20" y="50">Ra 0.2 µm</text>
+                <text x="20" y="70">10H Mohs</text>
+                <text x="460" y="50">CLEARCOAT</text>
+                <text x="460" y="70">0.08 ROUGHNESS</text>
+              </g>
+            </svg>
+          </div>
+          <p data-reveal className="max-w-md text-center text-sm font-light leading-relaxed text-white/65 md:text-base">
+            A ceramic-gloss composite, vacuum-deposited in three layers.
+            The surface rejects fingerprints, scratches, and time itself.
+            Cold to the first touch. Warm after a minute. Always intentional.
+          </p>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 14 — ALUMINIUM ================= */}
+      <Scene id="aluminium" act={4}>
+        <GiantWord text="Forged" className="inset-x-0 bottom-[12%] text-center text-[15vw]" opacity={0.04} />
+        <ActMark act={4} />
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-20">
+          <div className="hidden md:block">
+            {/* Aluminium billet cross-section */}
+            <svg viewBox="0 0 200 200" className="h-56 w-56" aria-hidden>
+              <rect x="20" y="20" width="160" height="160" fill="none" stroke="rgba(255,255,255,0.2)" rx="8" />
+              <rect x="40" y="40" width="120" height="120" fill="none" stroke="rgba(87,230,255,0.4)" rx="4" strokeDasharray="2 3" />
+              <circle cx="100" cy="100" r="30" fill="none" stroke="rgba(255,255,255,0.5)" />
+              <circle cx="100" cy="100" r="5" fill="#57e6ff" />
+              <g fontFamily="ui-monospace, monospace" fontSize="8" letterSpacing="0.2em" fill="rgba(255,255,255,0.6)">
+                <text x="22" y="16">6061-T6</text>
+                <text x="22" y="190">CNC · 41 MIN</text>
+                <text x="140" y="16" textAnchor="end">BILLET</text>
+              </g>
+            </svg>
+          </div>
+          <div className="max-w-xl space-y-8">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-white/55">
+              Material III · The case
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2.2rem,5vw,4.5rem)] font-bold uppercase leading-none tracking-tighter">
+              Machined from<br /><span className="text-white/55">a single billet.</span>
+            </h2>
+            <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+              6061-T6 aluminium. Forty-one minutes of CNC machining per case.
+              Diamond-like coating at three microns. The seam closes at 0.4
+              newtons — a whisper, not a click.
+            </p>
+            <div data-reveal className="flex flex-wrap gap-3">
+              <SpecChip k="Alloy" v="6061-T6" />
+              <SpecChip k="Coating" v="DLC · 3 µm" />
+              <SpecChip k="Recycled" v="71%" />
+            </div>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================================================================ */}
+      {/* ACT V — EMERGENCE                                                 */}
+      {/* ================================================================ */}
+
+      {/* ================= SCENE 15 — GLIMPSE ================= */}
       <Scene id="glimpse" act={3}>
         <GridBackdrop opacity={0.3} />
         <CornerFrame />
@@ -1589,10 +1835,10 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT IV — ACOUSTIC ARCHITECTURE                                    */}
+      {/* ACT VI — ACOUSTIC ARCHITECTURE                                    */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 13 — HERO REVEAL ================= */}
+      {/* ================= SCENE 19 — HERO REVEAL ================= */}
       <Scene id="hero" act={4}>
         <CornerFrame />
         <TechLabel n="EXP" className="left-[8%] top-[24%]">Aura One · Final</TechLabel>
@@ -1699,10 +1945,10 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT V — INTERNAL COMPONENTS                                       */}
+      {/* ACT VII — INTERNAL COMPONENTS                                     */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 17 — ENGINEERING INTRO ================= */}
+      {/* ================= SCENE 23 — ENGINEERING INTRO ================= */}
       <Scene id="engineering" act={5}>
         <GridBackdrop opacity={0.3} />
         <ActMark act={5} />
@@ -1828,10 +2074,10 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT VI — SOUND ENGINEERING                                        */}
+      {/* ACT VIII — SOUND ENGINEERING                                      */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 21 — CHAPTER III: THE CELL ================= */}
+      {/* ================= SCENE 27 — CHAPTER III: THE CELL ================= */}
       <Scene id="cell" act={6}>
         <GridBackdrop opacity={0.25} />
         <ActMark act={6} />
@@ -1930,10 +2176,137 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT VII — EXPERIENCE                                              */}
+      {/* ACT IX — RESONANCE                                                */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 25 — SPATIAL ================= */}
+      {/* ================= SCENE 31 — RESONANCE ================= */}
+      <Scene id="resonance" act={9}>
+        <GridBackdrop opacity={0.3} />
+        <GiantWord text="Resonance" className="inset-x-0 top-[14%] text-center text-[14vw]" opacity={0.05} />
+        <CornerFrame />
+        <TechLabel n="FRQ" className="left-[10%] top-[26%]">Harmonic series · live</TechLabel>
+        <TechLabel n="THD" className="right-[10%] top-[70%]">Total harmonic distortion</TechLabel>
+        <ActMark act={9} />
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-8 px-6 text-center">
+          <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-[#57e6ff]/80">
+            Act IX · Sound Made Visible
+          </p>
+          <h2 data-reveal className="font-display text-[clamp(2.4rem,7vw,6.5rem)] font-bold uppercase leading-[1.02] tracking-tighter">
+            Feel the<br /><span className="text-white/55">harmonics.</span>
+          </h2>
+          {/* Animated resonance rings */}
+          <div className="relative h-48 w-48">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 rounded-full border border-[#57e6ff]/30"
+                style={{
+                  animation: `resonancePulse ${2 + i * 0.4}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.3}s`,
+                  transform: `scale(${0.3 + i * 0.18})`,
+                }}
+              />
+            ))}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-3 w-3 rounded-full bg-[#57e6ff] shadow-[0_0_20px_rgba(87,230,255,0.6)]" />
+            </div>
+          </div>
+          <style>{`
+            @keyframes resonancePulse {
+              0%, 100% { opacity: 0.2; transform: scale(var(--s, 0.3)); }
+              50% { opacity: 0.6; transform: scale(calc(var(--s, 0.3) + 0.15)); }
+            }
+          `}</style>
+          <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+            Every object has a resonant frequency — the note where it vibrates
+            most freely. The Aura One is tuned so its natural resonance falls
+            outside the audible range. What you hear is pure signal. What you
+            don&apos;t hear is the earbud itself.
+          </p>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 32 — HARMONICS ================= */}
+      <Scene id="harmonics" act={9}>
+        <ActMark act={9} />
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-20">
+          <div className="max-w-xl space-y-10">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-white/55">
+              Harmonic analysis
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
+              Overtones that<br /><span className="text-white/55">know their place.</span>
+            </h2>
+            <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+              A violin sounds like a violin because of its overtones — the
+              subtle harmonics stacked above the fundamental. The Aura One
+n              reproduces these faithfully, from the warm 2nd harmonic to the
+              shimmer of the 16th.
+            </p>
+            <div data-reveal className="flex flex-wrap gap-3">
+              <SpecChip k="THD" v="< 0.08%" />
+              <SpecChip k="Harmonics" v="1st – 16th" />
+              <SpecChip k="Response" v="20 Hz – 20 kHz" />
+            </div>
+          </div>
+          <div className="hidden md:block">
+            {/* Harmonic series visualization */}
+            <svg viewBox="0 0 200 300" className="h-72 w-48" aria-hidden>
+              {[1, 2, 3, 4, 5, 6].map((n) => {
+                const y = 20 + (n - 1) * 45;
+                const amp = 30 / n;
+                const freq = n * 0.8;
+                const points = Array.from({ length: 41 })
+                  .map((_, i) => {
+                    const x = (i / 40) * 200;
+                    const yy = y + Math.sin((i / 40) * Math.PI * 2 * freq) * amp;
+                    return `${x},${yy}`;
+                  })
+                  .join(" ");
+                return (
+                  <g key={n}>
+                    <polyline points={points} fill="none" stroke="#57e6ff" strokeWidth="1" opacity={0.7 - n * 0.08} />
+                    <text x="8" y={y - 8} fontFamily="ui-monospace, monospace" fontSize="8" fill="rgba(255,255,255,0.4)" letterSpacing="0.2em">
+                      {n === 1 ? "FUND" : `${n}TH`}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 33 — OVERTONES ================= */}
+      <Scene id="overtones" act={9}>
+        <GridBackdrop opacity={0.25} />
+        <ActMark act={9} />
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-8 px-6 text-center">
+          <h2 data-reveal className="font-display text-[clamp(2rem,5.5vw,5rem)] font-bold uppercase leading-[1.02] tracking-tighter">
+            Where music<br /><span className="text-white/55">lives between notes.</span>
+          </h2>
+          <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+            The space between notes is where emotion lives. Reverb tails,
+            breath sounds, the decay of a piano string — these are the
+            overtones that make recorded music feel alive. The Aura One
+            preserves every one.
+          </p>
+          <div data-reveal className="mt-4 flex items-center gap-6">
+            {["Warmth", "Air", "Decay", "Space"].map((t, i) => (
+              <div key={t} className="text-center">
+                <div className="mx-auto mb-2 h-16 w-px" style={{ background: `linear-gradient(to top, transparent, rgba(87,230,255,${0.8 - i * 0.15}), transparent)` }} />
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">{t}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================================================================ */}
+      {/* ACT X — EXPERIENCE                                                */}
+      {/* ================================================================ */}
+
+      {/* ================= SCENE 34 — SPATIAL ================= */}
       <Scene id="spatial" act={7}>
         <GridBackdrop opacity={0.3} />
         <TechLabel n="IMU" className="left-[10%] top-[24%]">Head-tracking · 1000 Hz</TechLabel>
@@ -1988,10 +2361,10 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT VIII — ECOSYSTEM                                              */}
+      {/* ACT XI — ECOSYSTEM                                                */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 27 — FAMILY ================= */}
+      {/* ================= SCENE 36 — FAMILY ================= */}
       <Scene id="family" act={8}>
         <GridBackdrop opacity={0.3} />
         <ActMark act={8} />
@@ -2071,10 +2444,141 @@ export default function CinematicOverlay() {
       </Scene>
 
       {/* ================================================================ */}
-      {/* ACT IX — FUTURE OF LISTENING                                      */}
+      {/* ACT XII — PRECISION ASSEMBLY                                      */}
       {/* ================================================================ */}
 
-      {/* ================= SCENE 29 — REASSEMBLY ================= */}
+      {/* ================= SCENE 38 — ASSEMBLY ================= */}
+      <Scene id="assembly" act={12}>
+        <GridBackdrop opacity={0.35} />
+        <GiantWord text="Assembly" className="inset-x-0 top-[16%] text-center text-[14vw]" opacity={0.04} />
+        <CornerFrame />
+        <TechLabel n="LOC" className="left-[8%] top-[22%]">Cleanroom · ISO 5</TechLabel>
+        <TechLabel n="TOL" className="right-[8%] top-[68%]">± 2 µm tolerance</TechLabel>
+        <ActMark act={12} />
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-20">
+          <div className="max-w-xl space-y-10">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-[#ffb45e]/80">
+              Act XII · Where precision meets purpose
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2.2rem,5vw,4.5rem)] font-bold uppercase leading-none tracking-tighter">
+              Hand-assembled.<br /><span className="text-white/55">Machine-verified.</span>
+            </h2>
+            <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+              In an ISO 5 cleanroom, forty-seven components come together
+              in a sequence refined over eleven hundred prototypes. Every
+              joint is laser-welded. Every seal is pressure-tested. Every
+              unit is listened to by a human being before it leaves.
+            </p>
+            <div data-reveal className="flex flex-wrap gap-3">
+              <SpecChip k="Components" v="47 per unit" />
+              <SpecChip k="Tolerance" v="± 2 µm" />
+              <SpecChip k="Test" v="100% listen" />
+            </div>
+          </div>
+          <div className="hidden md:block">
+            {/* Assembly sequence visualization */}
+            <svg viewBox="0 0 200 300" className="h-72 w-48" aria-hidden>
+              {[0, 1, 2, 3, 4, 5].map((i) => {
+                const y = 30 + i * 42;
+                const x = 100;
+                const opacity = 0.3 + i * 0.12;
+                return (
+                  <g key={i}>
+                    <rect x={x - 40} y={y} width="80" height="28" fill="none" stroke="#57e6ff" strokeWidth="0.5" opacity={opacity} rx="2" />
+                    <line x1={x} y1={y + 28} x2={x} y2={y + 42} stroke="#57e6ff" strokeWidth="0.5" opacity={opacity * 0.7} />
+                    <text x={x + 48} y={y + 18} fontFamily="ui-monospace, monospace" fontSize="7" fill="rgba(255,255,255,0.5)" letterSpacing="0.15em">
+                      {["DIAPHRAGM", "COIL", "MAGNET", "PCB", "SHELL", "SEAL"][i]}
+                    </text>
+                  </g>
+                );
+              })}
+              <text x="100" y="285" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="8" fill="rgba(87,230,255,0.7)" letterSpacing="0.2em">
+                SEQUENCE · 41 MIN
+              </text>
+            </svg>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 39 — CALIBRATION ================= */}
+      <Scene id="calibration" act={12}>
+        <ActMark act={12} />
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-10 p-8">
+          <div className="text-center">
+            <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/55">
+              Calibration · every unit
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
+              Tuned to<br /><span className="text-white/55">a reference curve.</span>
+            </h2>
+          </div>
+          <div className="w-full max-w-2xl">
+            {/* Frequency response calibration curve */}
+            <svg viewBox="0 0 600 120" className="h-28 w-full" aria-hidden>
+              <line x1="0" y1="60" x2="600" y2="60" stroke="rgba(255,255,255,0.1)" />
+              <path
+                d="M0,65 Q60,58 120,60 T240,58 T360,60 T480,59 T600,60"
+                fill="none"
+                stroke="#57e6ff"
+                strokeWidth="1.5"
+                opacity="0.8"
+              />
+              <path
+                d="M0,65 Q60,62 120,63 T240,61 T360,63 T480,62 T600,63"
+                fill="none"
+                stroke="rgba(255,255,255,0.3)"
+                strokeWidth="0.8"
+                strokeDasharray="2 3"
+              />
+              <g fontFamily="ui-monospace, monospace" fontSize="8" fill="rgba(255,255,255,0.5)" letterSpacing="0.2em">
+                <text x="10" y="20">TARGET</text>
+                <text x="10" y="32" fill="rgba(87,230,255,0.7)">ACTUAL</text>
+                <text x="540" y="110">± 0.5 dB</text>
+              </g>
+            </svg>
+          </div>
+          <p data-reveal className="max-w-md text-center text-sm font-light leading-relaxed text-white/65 md:text-base">
+            Every unit is measured against a reference curve. Deviations
+            greater than 0.5 dB are rejected. The result: two earbuds that
+            sound identical, even though they were assembled by different
+            technicians on different days.
+          </p>
+        </div>
+      </Scene>
+
+      {/* ================= SCENE 40 — CERTIFICATION ================= */}
+      <Scene id="certification" act={12}>
+        <GridBackdrop opacity={0.25} />
+        <ActMark act={12} />
+        <div data-content className="sticky top-0 flex h-screen items-center justify-center p-8 md:p-20">
+          <div className="max-w-2xl space-y-10 text-center">
+            <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-white/55">
+              Final verification
+            </p>
+            <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
+              Every unit<br /><span className="text-white/55">listened to.</span>
+            </h2>
+            <div data-reveal className="grid grid-cols-3 gap-6">
+              {["Frequency sweep", "Phase coherence", "Leakage test"].map((t) => (
+                <div key={t} className="border border-white/10 bg-white/[0.02] px-4 py-5 backdrop-blur-sm">
+                  <div className="mx-auto mb-3 h-8 w-8 rounded-full border border-[#57e6ff]/50" />
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">{t}</p>
+                </div>
+              ))}
+            </div>
+            <p data-reveal className="max-w-md mx-auto text-sm font-light leading-relaxed text-white/55">
+              Automated at every step, verified by ear at the last.
+              Technology ensures consistency. Humanity ensures soul.
+            </p>
+          </div>
+        </div>
+      </Scene>
+
+      {/* ================================================================ */}
+      {/* ACT XIII — FUTURE OF LISTENING                                    */}
+      {/* ================================================================ */}
+
+      {/* ================= SCENE 41 — REASSEMBLY ================= */}
       <Scene id="reassembly" act={9}>
         <GridBackdrop opacity={0.25} />
         <ActMark act={9} />
@@ -2093,7 +2597,7 @@ export default function CinematicOverlay() {
         </div>
       </Scene>
 
-      {/* ================= SCENE 30 — FINAL HERO ================= */}
+      {/* ================= SCENE 42 — FINAL HERO ================= */}
       <Scene id="final" act={9}>
         <GiantWord text="Forever" className="inset-x-0 top-[14%] text-center text-[15vw]" opacity={0.03} />
         <CornerFrame />

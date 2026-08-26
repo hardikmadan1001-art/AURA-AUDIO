@@ -32,45 +32,65 @@ export const T = {
   signal: W("signal"),
   frequencies: W("frequencies"),
 
-  /* ACT II — The Vessel (stages 1–3 of the reveal) */
+  /* ACT II — Genesis */
+  origin: W("origin"),
+  philosophy: W("philosophy"),
+  obsession: W("obsession"),
+
+  /* ACT III — The Vessel (stages 1–3 of the reveal) */
   approach: W("approach"),
   orbit: W("orbit"),
   material: W("material"),
   craft: W("craft"),
 
-  /* ACT III — Emergence (stages 4–8 of the reveal) */
+  /* ACT IV — Material World */
+  graphene: W("graphene"),
+  ceramic: W("ceramic"),
+  aluminium: W("aluminium"),
+
+  /* ACT V — Emergence (stages 4–8 of the reveal) */
   glimpse: W("glimpse"),
   firstlight: W("firstlight"),
   rise: W("rise"),
   separation: W("separation"),
 
-  /* ACT IV — Acoustic Architecture */
+  /* ACT VI — Acoustic Architecture */
   hero: W("hero"),
   waves: W("waves"),
   driver: W("driver"),
   interlude: W("interlude"),
 
-  /* ACT V — Internal Components */
+  /* ACT VII — Internal Components */
   engineering: W("engineering"),
   explosion: W("explosion"),
   shell: W("shell"),
   processor: W("processor"),
 
-  /* ACT VI — Sound Engineering */
+  /* ACT VIII — Sound Engineering */
   cell: W("cell"),
   anc: W("anc"),
   power: W("power"),
   connect: W("connect"),
 
-  /* ACT VII — Experience */
+  /* ACT IX — Resonance */
+  resonance: W("resonance"),
+  harmonics: W("harmonics"),
+  overtones: W("overtones"),
+
+  /* ACT X — Experience */
   spatial: W("spatial"),
   touch: W("touch"),
 
-  /* ACT VIII — Ecosystem */
+  /* ACT XI — Ecosystem */
   family: W("family"),
   versus: W("versus"),
 
-  /* ACT IX — Future of Listening */
+  /* ACT XII — Precision Assembly */
+  assembly: W("assembly"),
+  calibration: W("calibration"),
+  certification: W("certification"),
+
+  /* ACT XIII — Future of Listening */
   reassembly: W("reassembly"),
   final: W("final"),
 } as const;
@@ -163,13 +183,7 @@ export function computeSeparation(p: number): number {
  * not a transform on the buds themselves.
  */
 
-/**
- * Explosion timeline — deliberately late. The product must be earned
- * before it is deconstructed:
- *   explosion scene 6%→34%   deconstruct (cubic in-out)
- *   through the cell chapter fully exploded, each part getting its film
- *   reassembly scene →42%    reassemble with magnetic overshoot (ACT IX)
- */
+/** Explosion timeline — deliberately late. */
 export function computeExplode(p: number): number {
   const e = T.explosion;
   const deconStart = at(e, 0.06);
@@ -180,7 +194,5 @@ export function computeExplode(p: number): number {
   if (p <= deconStart || p >= reasEnd + 0.001) return 0;
   if (p < deconEnd) return easeInOut((p - deconStart) / (deconEnd - deconStart));
   if (p <= holdEnd) return 1;
-  // Reassembly: back-out overshoot lets parts cross their rest point
-  // slightly — reads as a magnetic snap rather than a stop.
   return 1 - easeOutBack(clamp01((p - holdEnd) / (reasEnd - holdEnd)));
 }

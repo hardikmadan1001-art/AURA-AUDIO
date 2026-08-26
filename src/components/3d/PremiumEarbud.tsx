@@ -23,6 +23,16 @@ import {
   WaveLines,
   HazePlanes,
   GridFloor,
+  GrapheneLattice,
+  ResonanceRings,
+  AssemblySparks,
+  CaseGlow,
+  HarmonicVis,
+  OriginEmbers,
+  CeramicShimmer,
+  OvertonesViz,
+  CertificationSeal,
+  FinalBloom,
 } from "./Atmospheres";
 
 /* ------------------------------------------------------------------ */
@@ -109,14 +119,6 @@ function EarbudModel() {
             emissive="#ffb45e"
             emissiveIntensity={0}
           />
-        </mesh>
-      </ExplodePart>
-
-      <ExplodePart base={[0, 0, 0]} dir={[0.15, 0.05, 1.05]} spin={0.3}>
-        {/* Equator chassis ring — the structural spine */}
-        <mesh rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[0.995, 0.05, 20, 96]} />
-          <meshStandardMaterial color="#8f939c" metalness={1} roughness={0.3} />
         </mesh>
       </ExplodePart>
 
@@ -358,6 +360,17 @@ export default function PremiumEarbud() {
       <PowerSystem />
       <SpatialHalo />
       <SignalRings />
+      {/* New atmospheric systems */}
+      <GrapheneLattice />
+      <ResonanceRings />
+      <AssemblySparks />
+      <CaseGlow />
+      <HarmonicVis />
+      <OriginEmbers />
+      <CeramicShimmer />
+      <OvertonesViz />
+      <CertificationSeal />
+      <FinalBloom />
     </group>
   );
 }

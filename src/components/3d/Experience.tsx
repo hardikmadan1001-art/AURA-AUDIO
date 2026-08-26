@@ -48,7 +48,12 @@ const CAM_KEYS: CamKey[] = [
   { p: T.manifesto.start, pos: [-1.6, 0.5, 8.8], look: [0, -0.5, 0], fov: 38 }, // mystery drift
   { p: T.frequencies.end, pos: [0.6, 0.4, 7.4], look: [0, -0.3, 0], fov: 36 }, // awaiting the vessel
 
-  // ---------- ACT II — the vessel (stages 1–3) ----------
+  // ---------- ACT II — genesis ----------
+  { p: T.origin.mid, pos: [-1.2, 0.3, 8.0], look: [0, -0.2, 0], fov: 37 }, // origin drift
+  { p: T.philosophy.mid, pos: [0.8, 0.6, 7.2], look: [0, 0.1, 0], fov: 36 }, // philosophy settle
+  { p: T.obsession.mid, pos: [-0.5, 0.4, 7.8], look: [0, 0.0, 0], fov: 37 }, // obsession
+
+  // ---------- ACT III — the vessel (stages 1–3) ----------
   { p: at(T.approach, 0.45), pos: [1.8, 0.85, 5.6], look: [0, 0.1, 0], fov: 36 }, // slow approach
   { p: T.orbit.start, pos: [-0.9, 0.7, 4.4], look: [0, 0.1, 0], fov: 35 }, // arrive alongside
   { p: at(T.orbit, 0.4), pos: [2.6, 1.1, 4.6], look: [0, 0.1, 0], fov: 34 }, // orbit begins
@@ -56,42 +61,71 @@ const CAM_KEYS: CamKey[] = [
   { p: at(T.material, 0.55), pos: [-2.2, 0.6, 3.0], look: [0, 0.12, 0], fov: 36 }, // sweep crossing
   { p: T.craft.mid, pos: [-0.5, 0.85, 3.2], look: [0, 0.15, 0], fov: 36 }, // front-top settle
 
-  // ---------- ACT III — emergence (stages 4–8) ----------
-  { p: at(T.glimpse, 0.5), pos: [0, 0.62, 2.4], look: [0, 0.35, 0], fov: 46 }, // THE GLIMPSE — into the seam
-  { p: at(T.firstlight, 0.4), pos: [0, 0.5, 2.1], look: [0, 0.35, 0], fov: 52 }, // intimate close — the pause
-  { p: at(T.rise, 0.5), pos: [0.6, 1.05, 4.2], look: [0, 0.55, 0], fov: 42 }, // buds rise — pull up
-  { p: T.separation.end, pos: [0, 0.55, 6.6], look: [0, 0.45, 0], fov: 36 }, // two distinct objects
+  // ---------- ACT IV — material world ----------
+  { p: T.graphene.mid, pos: [1.4, 0.5, 4.2], look: [0, 0.3, 0], fov: 38 }, // graphene lattice
+  { p: T.ceramic.mid, pos: [-1.8, 0.3, 3.6], look: [0, 0.3, 0], fov: 40 }, // ceramic close
+  { p: T.aluminium.mid, pos: [0.6, 0.6, 4.0], look: [0, 0.25, 0], fov: 37 }, // aluminium billet
 
-  // ---------- ACT IV — acoustic architecture ----------
+  // ---------- ACT V — EMERGENCE: enhanced case reveal (stages 4–8) ----------
+  // Glimpse: ultra-intimate push into the seam crack, low angle.
+  { p: at(T.glimpse, 0.15), pos: [0, 0.35, 2.8], look: [0, 0.4, 0], fov: 48 }, // approach the seam
+  { p: at(T.glimpse, 0.55), pos: [0.3, 0.52, 1.8], look: [0, 0.5, 0], fov: 56 }, // INTO the seam — extreme close
+  { p: at(T.glimpse, 0.88), pos: [0, 0.58, 1.6], look: [0, 0.52, 0], fov: 58 }, // hold the crack — tension peak
+  // Firstlight: dramatic slow ascent as lid opens, camera rises with it.
+  { p: at(T.firstlight, 0.1), pos: [0, 0.4, 1.9], look: [0, 0.55, 0], fov: 54 }, // intimate — first glow
+  { p: at(T.firstlight, 0.5), pos: [-0.4, 0.7, 2.4], look: [0, 0.55, 0], fov: 48 }, // rising — lid opening
+  { p: at(T.firstlight, 0.9), pos: [-0.6, 0.9, 3.0], look: [0, 0.55, 0], fov: 44 }, // tall — lid almost full
+  // Rise: sweeping dramatic pull-back as buds emerge one at a time.
+  { p: at(T.rise, 0.15), pos: [-0.3, 1.0, 3.4], look: [0, 0.6, 0], fov: 42 }, // first bud lifts
+  { p: at(T.rise, 0.5), pos: [0.6, 1.15, 4.5], look: [0, 0.55, 0], fov: 38 }, // pull back — both rising
+  { p: at(T.rise, 0.9), pos: [0.3, 0.8, 5.2], look: [0, 0.5, 0], fov: 36 }, // settling into formation
+  // Separation: wide frame showing two distinct objects.
+  { p: at(T.separation, 0.3), pos: [0, 0.6, 5.8], look: [0, 0.48, 0], fov: 36 }, // objects apart
+  { p: T.separation.end, pos: [0, 0.55, 6.6], look: [0, 0.45, 0], fov: 35 }, // two distinct objects
+
+  // ---------- ACT V.5 — graphene / ceramic / aluminium world ----------
   { p: T.hero.start, pos: [0, 0.5, 7.2], look: [0, 0.4, 0], fov: 37 }, // hero approach
   { p: T.hero.end, pos: [0, 0.45, 6.2], look: [0, 0.4, 0], fov: 36 }, // HERO duo framing
   { p: T.waves.mid, pos: [1.7, 0.3, 4.5], look: [0, 0.4, 0], fov: 40 }, // audio waves
   { p: T.driver.mid, pos: [-1.6, -0.1, 3.2], look: [0, 0.35, 0], fov: 44 }, // driver macro
   { p: T.interlude.mid, pos: [0, 0.3, 8.2], look: [0, 0.3, 0], fov: 38 }, // interlude breath
 
-  // ---------- ACT V — internal components ----------
+  // ---------- ACT VII — internal components ----------
   { p: T.engineering.mid, pos: [0.5, 0.4, 6.0], look: [0, 0.3, 0], fov: 40 },
-  { p: at(T.explosion, 0.25), pos: [0.4, 0.5, 7.6], look: [0, 0.3, 0], fov: 40 }, // explosion stage
-  { p: at(T.explosion, 0.65), pos: [1.2, 0.35, 6.4], look: [0, 0.3, 0], fov: 40 },
-  { p: T.processor.mid, pos: [-1.1, 0.2, 5.8], look: [0, 0.25, 0], fov: 40 }, // drifting across parts
+  { p: at(T.explosion, 0.15), pos: [0, 0.6, 7.0], look: [0, 0.3, 0], fov: 38 }, // explosion begins
+  { p: at(T.explosion, 0.35), pos: [0.8, 0.55, 6.8], look: [0, 0.3, 0], fov: 38 }, // fully exploded
+  { p: at(T.explosion, 0.65), pos: [1.4, 0.35, 6.0], look: [0, 0.3, 0], fov: 40 }, // inspecting parts
+  { p: T.shell.mid, pos: [-0.8, 0.3, 5.5], look: [0, 0.3, 0], fov: 40 }, // shell layer
+  { p: T.processor.mid, pos: [-1.1, 0.2, 5.8], look: [0, 0.25, 0], fov: 40 }, // processor chip
 
-  // ---------- ACT VI — sound engineering ----------
+  // ---------- ACT VIII — sound engineering ----------
   { p: T.cell.mid, pos: [0.8, 0.4, 5.2], look: [0, 0.3, 0], fov: 38 },
   { p: T.anc.mid, pos: [-1.8, -0.25, 3.7], look: [0, 0.35, 0], fov: 42 }, // ANC low angle
   { p: T.power.mid, pos: [0.9, 0.5, 3.5], look: [0, 0.4, 0], fov: 40 }, // power closeup
   { p: T.connect.mid, pos: [0, 0.05, 2.9], look: [0, 0.45, 0], fov: 50 }, // connectivity close
 
-  // ---------- ACT VII — experience ----------
+  // ---------- ACT IX — resonance ----------
+  { p: T.resonance.mid, pos: [0, 0.4, 4.8], look: [0, 0.45, 0], fov: 38 }, // resonance orbit
+  { p: T.harmonics.mid, pos: [-1.5, 0.3, 4.2], look: [0, 0.4, 0], fov: 40 }, // harmonics close
+  { p: T.overtones.mid, pos: [0.8, 0.5, 5.0], look: [0, 0.4, 0], fov: 37 }, // overtones drift
+
+  // ---------- ACT X — experience ----------
   { p: T.spatial.mid, pos: [0, 0.25, 5.4], look: [0, 0.45, 0], fov: 38 }, // spatial wide
   { p: T.touch.mid, pos: [-0.9, 0.35, 2.9], look: [0, 0.4, 0], fov: 46 }, // materials macro
 
-  // ---------- ACT VIII — ecosystem ----------
+  // ---------- ACT XI — ecosystem ----------
   { p: T.family.mid, pos: [0, 0.5, 6.2], look: [0, 0.3, 0], fov: 36 }, // trio wide
   { p: T.versus.mid, pos: [0, 0.4, 6.6], look: [0, 0.3, 0], fov: 36 },
 
-  // ---------- ACT IX — future of listening ----------
-  { p: T.reassembly.end, pos: [0, 0.4, 6.8], look: [0, 0.3, 0], fov: 36 }, // reassembly settle
-  { p: 1.0, pos: [0, 0.3, 8.8], look: [0, 0.3, 0], fov: 34 }, // FINAL HERO pull-back
+  // ---------- ACT XII — precision assembly ----------
+  { p: T.assembly.mid, pos: [0, 1.2, 4.5], look: [0, 0.3, 0], fov: 36 }, // overhead clinical
+  { p: T.calibration.mid, pos: [-0.6, 0.5, 3.8], look: [0, 0.35, 0], fov: 40 }, // calibration close
+  { p: T.certification.mid, pos: [0.4, 0.6, 5.0], look: [0, 0.3, 0], fov: 37 }, // certification
+
+  // ---------- ACT XIII — future of listening ----------
+  { p: T.reassembly.mid, pos: [0, 0.5, 5.5], look: [0, 0.35, 0], fov: 38 }, // parts converge
+  { p: at(T.reassembly, 0.9), pos: [0, 0.4, 6.0], look: [0, 0.35, 0], fov: 36 }, // settle
+  { p: 1.0, pos: [0, 0.3, 9.0], look: [0, 0.3, 0], fov: 32 }, // FINAL HERO pull-back — grand
 ];
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -158,33 +192,43 @@ function Lights() {
   const amberFill = useRef<THREE.PointLight>(null);
   const violetFill = useRef<THREE.PointLight>(null);
   const top = useRef<THREE.DirectionalLight>(null);
+  // Case reveal drama — blooms during glimpse/firstlight
+  const caseReveal = useRef<THREE.PointLight>(null);
+  // Resonance glow — purple halo during ACT IX
+  const resonanceGlow = useRef<THREE.PointLight>(null);
+  // Assembly clinical overhead — cold light for ACT XII
+  const assemblyClinical = useRef<THREE.SpotLight>(null);
 
   useFrame(() => {
     const p = scrollState.progress;
-    const arrival = win(p, T.approach.start, T.material.start); // vessel catches light
-    const sweepW = win(p, T.material.start, T.material.end); // material quality
-    const glimpse = win(p, T.glimpse.start, T.glimpse.end); // interior glow beat
-    const opened = win(p, T.firstlight.start, T.rise.start); // lid fully open
-    const hero = win(p, T.hero.start, T.hero.end); // reveal burst
-    const sound = win(p, T.waves.start, T.waves.end); // audio film
-    const anc = win(p, T.anc.start, T.anc.end); // ANC film
-    const power = win(p, T.power.start, T.power.end); // battery film
-    const spatial = win(p, T.spatial.start, T.spatial.end); // spatial film
-    const eng = win(p, T.explosion.start, T.cell.end); // engineering signature
-    const finale = win(p, T.final.start, 1); // final hero dims to confidence
+    const arrival = win(p, T.approach.start, T.material.start);
+    const sweepW = win(p, T.material.start, T.material.end);
+    const glimpse = win(p, T.glimpse.start, T.glimpse.end);
+    const firstlight = win(p, T.firstlight.start, T.firstlight.end);
+    const opened = win(p, T.firstlight.start, T.rise.start);
+    const hero = win(p, T.hero.start, T.hero.end);
+    const sound = win(p, T.waves.start, T.waves.end);
+    const anc = win(p, T.anc.start, T.anc.end);
+    const power = win(p, T.power.start, T.power.end);
+    const spatial = win(p, T.spatial.start, T.spatial.end);
+    const eng = win(p, T.explosion.start, T.cell.end);
+    const resonance = win(p, T.resonance.start, T.overtones.end);
+    const assembly = win(p, T.assembly.start, T.certification.end);
+    const finale = win(p, T.final.start, 1);
 
+    // Key light — ramps up through the vessel reveal, peaks at hero.
     if (key.current)
       key.current.intensity =
         (22 +
           arrival * 130 +
-          opened * 60 +
-          hero * 120 +
+          opened * 80 +
+          hero * 140 +
           power * 60 +
           eng * 70 +
-          glimpse * 20) *
+          glimpse * 20 +
+          assembly * 35) *
         (1 - finale * 0.55);
     if (sweep.current) {
-      // The sweep spotlight travels across the body once per ACT II.
       sweep.current.intensity = sweepW * 260;
       const x = -6 + sweepW * 13;
       sweep.current.position.set(x, 4.2, 4);
@@ -196,14 +240,31 @@ function Lights() {
           sound * 30 +
           anc * 18 +
           eng * 42 +
-          glimpse * 14) *
+          glimpse * 14 +
+          resonance * 18) *
         (1 - finale * 0.5);
     if (amberFill.current)
       amberFill.current.intensity = 2 + power * 46 + hero * 24 + arrival * 4 - finale * 3;
     if (violetFill.current)
-      violetFill.current.intensity = spatial * 30 * (1 - finale * 0.5);
+      violetFill.current.intensity = (spatial * 30 + resonance * 22) * (1 - finale * 0.5);
     if (top.current)
-      top.current.intensity = 0.7 + arrival * 1.4 + eng * 1.2 - finale * 0.6;
+      top.current.intensity = 0.7 + arrival * 1.4 + eng * 1.2 + assembly * 0.8 - finale * 0.6;
+
+    // Case reveal — dramatic warm bloom that peaks between glimpse and firstlight.
+    if (caseReveal.current) {
+      const caseBloom = glimpse * 0.8 + firstlight * 1.0;
+      caseReveal.current.intensity = caseBloom * 180;
+      // Light rises as the lid opens.
+      caseReveal.current.position.y = 0.3 + firstlight * 0.6;
+    }
+    // Resonance — purple glow from below during harmonic acts.
+    if (resonanceGlow.current) {
+      resonanceGlow.current.intensity = resonance * 28;
+    }
+    // Assembly — clinical overhead spotlight for the cleanroom.
+    if (assemblyClinical.current) {
+      assemblyClinical.current.intensity = assembly * 85;
+    }
   });
 
   return (
@@ -217,7 +278,7 @@ function Lights() {
         intensity={22}
         color="#ffffff"
       />
-      {/* Material sweep — a hard bar of light that crosses the vessel */}
+      {/* Material sweep */}
       <spotLight
         ref={sweep}
         position={[-6, 4.2, 4]}
@@ -226,13 +287,41 @@ function Lights() {
         intensity={0}
         color="#eaf6ff"
       />
-      {/* Cyan rim — the engineering-reveal signature */}
+      {/* Cyan rim — engineering + resonance signature */}
       <pointLight ref={cyanRim} position={[-7, 2, -4]} intensity={6} color="#57e6ff" />
-      {/* Amber fill — the power-system warmth */}
+      {/* Amber fill — power-system warmth */}
       <pointLight ref={amberFill} position={[4, -4, 3]} intensity={2} color="#ffb45e" />
-      {/* Violet fill — the spatial-audio halo */}
+      {/* Violet fill — spatial + resonance halo */}
       <pointLight ref={violetFill} position={[0, 3, -5]} intensity={0} color="#b48cff" />
       <directionalLight ref={top} position={[0, 8, -2]} intensity={0.7} color="#dfe8ff" />
+
+      {/* Case reveal drama — blooms upward during glimpse/firstlight */}
+      <pointLight
+        ref={caseReveal}
+        position={[0, 0.3, 0.5]}
+        intensity={0}
+        color="#ffb45e"
+        distance={6}
+        decay={2}
+      />
+      {/* Resonance glow — violet halo from below */}
+      <pointLight
+        ref={resonanceGlow}
+        position={[0, -2, 0]}
+        intensity={0}
+        color="#b48cff"
+        distance={8}
+        decay={2}
+      />
+      {/* Assembly clinical — cold overhead for the cleanroom */}
+      <spotLight
+        ref={assemblyClinical}
+        position={[0, 8, 2]}
+        angle={0.35}
+        penumbra={0.8}
+        intensity={0}
+        color="#e8f0ff"
+      />
     </>
   );
 }
