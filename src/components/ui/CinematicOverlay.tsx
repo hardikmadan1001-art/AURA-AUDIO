@@ -1185,6 +1185,15 @@ export default function CinematicOverlay() {
       const sExplode = el.querySelector("#scene-explosion");
       if (sExplode) {
         const labels = sExplode.querySelectorAll("[data-part]");
+        const conns = sExplode.querySelectorAll<SVGLineElement>("[data-conn-line]");
+        // Animate the connection lines by toggling stroke-dashoffset (no plugin needed).
+        conns.forEach((line) => {
+          const len = line.getTotalLength?.() ?? 0;
+          if (len) {
+            line.style.strokeDasharray = `${len}`;
+            line.style.strokeDashoffset = `${len}`;
+          }
+        });
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sExplode,
@@ -1193,19 +1202,24 @@ export default function CinematicOverlay() {
             scrub: true,
           },
         });
-        tl.from(labels, { autoAlpha: 0, y: 24, stagger: 0.09, ease: "none" }, 0.08)
+        tl.to(conns, { strokeDashoffset: 0, ease: "none", stagger: 0.04 }, 0.05)
+          .from(labels, { autoAlpha: 0, y: 24, stagger: 0.09, ease: "none" }, 0.08)
           .from(sExplode.querySelector("[data-giant]"), { letterSpacing: "0.6em", autoAlpha: 0, ease: "none" }, 0)
-          .to(labels, { autoAlpha: 0, y: -18, stagger: 0.03, ease: "none" }, 0.82);
+          .to(labels, { autoAlpha: 0, y: -18, stagger: 0.03, ease: "none" }, 0.82)
+          .to(conns, { autoAlpha: 0, ease: "none" }, 0.82);
       }
 
-      /* ---------- FINAL — CTA breathes ---------- */
-      gsap.to("[data-cta]", {
-        scale: 1.04,
-        repeat: -1,
-        yoyo: true,
-        duration: 1.8,
-        ease: "sine.inOut",
-      });
+      /* ---------- FINAL — CTA breathes (scoped to the final scene) ---------- */
+      const finalCta = el.querySelector("#scene-final [data-cta]");
+      if (finalCta) {
+        gsap.to(finalCta, {
+          scale: 1.02,
+          repeat: -1,
+          yoyo: true,
+          duration: 2.4,
+          ease: "sine.inOut",
+        });
+      }
     }, el);
 
     return () => ctx.revert();
@@ -1585,14 +1599,23 @@ export default function CinematicOverlay() {
         <TechLabel n="WGT" className="right-[8%] top-[68%]">11 g per bud</TechLabel>
         <ActMark act={4} />
         <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
-          <p data-reveal className="mb-8 font-mono text-xs uppercase tracking-[0.6em] text-white/40">
+          <p data-reveal className="mb-8 font-mono text-xs uppercase tracking-[0.6em] text-white/55">
             Act IV · The Reveal
           </p>
-          <h2 className="font-display text-[clamp(3.6rem,13vw,12rem)] font-bold uppercase leading-[0.9] tracking-tighter">
-            <span data-reveal className="block overflow-hidden pb-1">Aura</span>
-            <span data-reveal className="block overflow-hidden pb-3 text-white/40">One.</span>
-          </h2>
-          <p data-reveal className="mt-8 max-w-lg text-base font-light leading-relaxed text-white/50 md:text-lg">
+          <div className="relative">
+            <Halo />
+            <h2 className="font-display text-[clamp(4rem,16vw,16rem)] font-bold uppercase leading-[0.85] tracking-tighter">
+              <span data-reveal className="block overflow-hidden pb-1">Aura</span>
+              <span
+                data-reveal
+                className="block overflow-hidden pb-3"
+                style={{ color: "rgba(87,230,255,0.85)", textShadow: "0 0 60px rgba(87,230,255,0.35)" }}
+              >
+                One.
+              </span>
+            </h2>
+          </div>
+          <p data-reveal className="mt-10 max-w-lg text-base font-light leading-relaxed text-white/65 md:text-lg">
             Eleven grams each. Every curve earning its place in the light.
             This is not an accessory. It is an instrument you happen to wear.
           </p>
@@ -1608,15 +1631,15 @@ export default function CinematicOverlay() {
         <TechLabel n="OSC" className="left-[10%] top-[28%]">Oscillator live</TechLabel>
         <TechLabel n="THD" className="right-[10%] top-[66%]">Distortion &lt; 0.08 %</TechLabel>
         <ActMark act={4} />
-        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
-          <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-[#57e6ff]/80">
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-8 px-6 text-center">
+          <p data-reveal className="font-mono text-xs uppercase tracking-[0.45em] text-[#57e6ff]/80">
             Feature I · Acoustics
           </p>
           <h2 data-reveal className="font-display text-[clamp(2.4rem,7vw,6.5rem)] font-bold uppercase leading-[1.02] tracking-tighter">
-            Sound,<br /><span className="text-white/40">made physical.</span>
+            Sound,<br /><span className="text-white/55">made physical.</span>
           </h2>
-          <div className="my-10"><EqBars count={36} height="h-24" /></div>
-          <p data-reveal className="max-w-md text-sm font-light leading-relaxed text-white/45 md:text-base">
+          <WaveformScrub />
+          <p data-reveal className="max-w-md text-sm font-light leading-relaxed text-white/60 md:text-base">
             You are inside the acoustic chamber. Twenty-micron waves roll past
             you — this is what 20Hz feels like. A graphene diaphragm so rigid
             it refuses to distort, even when the music begs it to.
@@ -1628,15 +1651,18 @@ export default function CinematicOverlay() {
       <Scene id="driver" act={4}>
         <GiantWord text="Diaphragm" className="inset-x-0 top-[14%] text-center text-[12vw]" opacity={0.04} />
         <ActMark act={4} />
-        <div data-content className="sticky top-0 flex h-screen items-center p-8 md:p-24">
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-24">
+          <div className="hidden md:block">
+            <DriverCrossSection />
+          </div>
           <div className="max-w-xl">
-            <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/30">
+            <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/55">
               Acoustic architecture · I
             </p>
             <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
-              The driver<br /><span className="text-white/40">is the argument.</span>
+              The driver<br /><span className="text-white/55">is the argument.</span>
             </h2>
-            <p data-reveal className="mt-8 max-w-md text-sm font-light leading-relaxed text-white/50 md:text-base">
+            <p data-reveal className="mt-8 max-w-md text-sm font-light leading-relaxed text-white/65 md:text-base">
               An 11mm graphene diaphragm, three microns thick, suspended by a
               gold surround tuned like a violin bridge. It moves less than a
               micron — and that micron is where music lives.
@@ -1655,13 +1681,18 @@ export default function CinematicOverlay() {
         <GridBackdrop opacity={0.2} />
         <ActMark act={4} />
         <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
-          <span data-reveal className="font-display text-[10rem] leading-none text-white/[0.06]">&ldquo;</span>
-          <blockquote data-reveal className="-mt-10 max-w-3xl font-display text-[clamp(1.6rem,4vw,3.4rem)] font-light uppercase leading-[1.25] tracking-[0.12em] text-white/70">
+          <span
+            data-reveal
+            className="font-serif text-[10rem] leading-none text-white/[0.10]"
+          >
+            “
+          </span>
+          <blockquote data-reveal className="-mt-10 max-w-3xl font-display text-[clamp(1.6rem,4vw,3.4rem)] font-light uppercase leading-[1.25] tracking-[0.12em] text-white/75">
             We didn&apos;t build a speaker.
             <br />
             We built a listener.
           </blockquote>
-          <p data-reveal className="mt-10 font-mono text-[10px] uppercase tracking-[0.4em] text-white/30">
+          <p data-reveal className="mt-10 font-mono text-[10px] uppercase tracking-[0.4em] text-white/35">
             Aura Acoustic Lab · Tuning notes · 2026
           </p>
         </div>
@@ -1675,16 +1706,19 @@ export default function CinematicOverlay() {
       <Scene id="engineering" act={5}>
         <GridBackdrop opacity={0.3} />
         <ActMark act={5} />
-        <div data-content className="sticky top-0 flex h-screen items-center justify-center px-6 text-center">
-          <div>
-            <p data-reveal className="mb-8 font-mono text-xs uppercase tracking-[0.6em] text-white/40">
+        <div data-content className="sticky top-0 flex h-screen items-center justify-center gap-16 px-6 text-center">
+          <div className="relative">
+            <EarbudBlueprint />
+          </div>
+          <div className="max-w-md text-left">
+            <p data-reveal className="mb-8 font-mono text-xs uppercase tracking-[0.6em] text-white/55">
               Act V · Engineering Film
             </p>
             <h2 data-reveal className="font-display text-[clamp(2rem,6vw,5.5rem)] font-bold uppercase leading-[1.05] tracking-tighter">
               You have seen the face.<br />
-              <span className="text-white/40">Now meet the organs.</span>
+              <span className="text-white/55">Now meet the organs.</span>
             </h2>
-            <p data-reveal className="mx-auto mt-8 max-w-md text-sm font-light leading-relaxed text-white/40">
+            <p data-reveal className="mt-8 max-w-md text-sm font-light leading-relaxed text-white/65">
               Hold still. The shell will open along seams no eye can find, and
               everything inside will hold its position for inspection.
             </p>
@@ -1696,17 +1730,53 @@ export default function CinematicOverlay() {
       <Scene id="explosion" act={5}>
         <GiantWord text="Deconstructed" className="inset-x-0 top-[16%] text-center text-[13vw]" opacity={0.05} />
         <div data-content className="sticky top-0 h-screen">
-          <p data-reveal className="absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[11px] uppercase tracking-[0.5em] text-white/35">
+          {/* SVG layer that draws connection lines from labels to the centre mass */}
+          <svg
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            data-conn
+          >
+            {PART_LABELS.map((l) => (
+              <line
+                key={l.n}
+                data-conn-line={l.n}
+                x1="50%"
+                y1="50%"
+                x2={l.pos.includes("text-right") ? "85%" : "15%"}
+                y2={l.pos.includes("top-[9%]") || l.pos.includes("top-[19%]") ? "22%" : l.pos.includes("bottom") ? "78%" : "50%"}
+                stroke="rgba(87,230,255,0.45)"
+                strokeWidth="0.6"
+                strokeDasharray="2 3"
+              />
+            ))}
+          </svg>
+          <p data-reveal className="absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[11px] uppercase tracking-[0.5em] text-white/55">
             Every layer. Engineered.
           </p>
-          {PART_LABELS.map((l) => (
-            <div key={l.n} data-part className={`absolute ${l.pos} max-w-[220px]`}>
-              <div className={`mb-3 h-px w-12 bg-gradient-to-r ${l.pos.includes("text-right") ? "ml-auto bg-gradient-to-l" : ""} from-white/60 to-transparent`} />
-              <p className="font-mono text-[10px] text-white/35">{l.n}</p>
-              <p className="mt-1 text-sm font-semibold uppercase tracking-widest">{l.name}</p>
-              <p className="mt-1 text-xs font-light text-white/40">{l.desc}</p>
-            </div>
-          ))}
+          {PART_LABELS.map((l) => {
+            const mirrored = l.pos.includes("text-right");
+            return (
+              <div key={l.n} data-part className={`absolute ${l.pos} max-w-[220px]`}>
+                <div
+                  className={`mb-3 h-px w-12 bg-gradient-to-r ${
+                    mirrored ? "ml-auto from-transparent via-[#57e6ff]/60 to-white/60" : "from-white/60 via-white/20 to-transparent"
+                  }`}
+                />
+                <div className={`flex items-center gap-3 ${mirrored ? "flex-row-reverse" : ""}`}>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[#57e6ff]/60 font-mono text-[10px] text-[#57e6ff]/90">
+                    {l.n}
+                  </span>
+                  <p className="font-mono text-[10px] text-white/55">{l.n}</p>
+                </div>
+                <p className={`mt-1 text-sm font-semibold uppercase tracking-widest ${mirrored ? "text-right" : ""}`}>
+                  {l.name}
+                </p>
+                <p className={`mt-1 text-xs font-light text-white/55 ${mirrored ? "text-right" : ""}`}>
+                  {l.desc}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </Scene>
 
@@ -1714,39 +1784,45 @@ export default function CinematicOverlay() {
       <Scene id="shell" act={5}>
         <GridBackdrop opacity={0.25} />
         <ActMark act={5} />
-        <div data-content className="sticky top-0 flex h-screen items-center p-8 md:p-24">
-          <div className="max-w-xl">
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-10 p-8">
+          <div className="text-center">
             <p data-reveal className="mb-6 font-display text-[clamp(4rem,10vw,9rem)] font-black leading-none tracking-tighter text-white/[0.07]">
               I
             </p>
             <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
-              A shell<br /><span className="text-white/40">with a duty of care.</span>
+              A shell<br /><span className="text-white/55">with a duty of care.</span>
             </h2>
-            <p data-reveal className="mt-8 max-w-md text-sm font-light leading-relaxed text-white/50 md:text-base">
-              Ceramic-gloss outside, damping composite within. The shell does
-              three jobs at once: seal the chamber, kill resonance, survive
-              your pocket. It makes all three look effortless.
-            </p>
           </div>
+          <div className="w-full max-w-2xl">
+            <ShellLayers />
+          </div>
+          <p data-reveal className="max-w-md text-center text-sm font-light leading-relaxed text-white/65 md:text-base">
+            Ceramic-gloss outside, damping composite within. The shell does
+            three jobs at once: seal the chamber, kill resonance, survive
+            your pocket. It makes all three look effortless.
+          </p>
         </div>
       </Scene>
 
       {/* ================= SCENE 20 — CHAPTER II: PROCESSOR ================= */}
       <Scene id="processor" act={5}>
         <ActMark act={5} />
-        <div data-content className="sticky top-0 flex h-screen items-center justify-end p-8 md:p-24">
-          <div className="max-w-xl text-right">
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-24">
+          <div className="max-w-xl">
             <p data-reveal className="mb-6 font-display text-[clamp(4rem,10vw,9rem)] font-black leading-none tracking-tighter text-white/[0.07]">
               II
             </p>
             <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
-              Three nanometres<br /><span className="text-white/40">of decision-making.</span>
+              Three nanometres<br /><span className="text-white/55">of decision-making.</span>
             </h2>
-            <p data-reveal className="mt-8 ml-auto max-w-md text-sm font-light leading-relaxed text-white/50 md:text-base">
+            <p data-reveal className="mt-8 max-w-md text-sm font-light leading-relaxed text-white/65 md:text-base">
               The custom Aura Silicon core runs adaptive EQ, hybrid ANC and the
               Bluetooth 6.0 stack simultaneously — at one-fifth the power of
               the off-the-shelf parts we refused to use.
             </p>
+          </div>
+          <div className="hidden md:block">
+            <ProcessorDie />
           </div>
         </div>
       </Scene>
@@ -1759,20 +1835,23 @@ export default function CinematicOverlay() {
       <Scene id="cell" act={6}>
         <GridBackdrop opacity={0.25} />
         <ActMark act={6} />
-        <div data-content className="sticky top-0 flex h-screen items-center p-8 md:p-24">
-          <div className="max-w-xl">
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-10 p-8">
+          <div className="text-center">
             <p data-reveal className="mb-6 font-display text-[clamp(4rem,10vw,9rem)] font-black leading-none tracking-tighter text-white/[0.07]">
               III
             </p>
             <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.4rem)] font-bold uppercase leading-none tracking-tighter">
-              A steel-cased<br /><span className="text-white/40">promise.</span>
+              A steel-cased<br /><span className="text-white/55">promise.</span>
             </h2>
-            <p data-reveal className="mt-8 max-w-md text-sm font-light leading-relaxed text-white/50 md:text-base">
-              Eight hours in each bud. Forty-eight with the vessel. A steel
-              jacket around the cell because energy this dense deserves armour.
-              Charge-level light visible from across the room.
-            </p>
           </div>
+          <div className="w-full max-w-2xl">
+            <BatteryFill />
+          </div>
+          <p data-reveal className="max-w-md text-center text-sm font-light leading-relaxed text-white/65 md:text-base">
+            Eight hours in each bud. Forty-eight with the vessel. A steel
+            jacket around the cell because energy this dense deserves armour.
+            Charge-level light visible from across the room.
+          </p>
         </div>
       </Scene>
 
@@ -1781,20 +1860,23 @@ export default function CinematicOverlay() {
         <TechLabel n="ANC" className="left-[10%] top-[26%]">Hybrid · feed-forward + feedback</TechLabel>
         <TechLabel n="MIC" className="right-[10%] top-[70%]">6 microphones</TechLabel>
         <ActMark act={6} />
-        <div data-content className="sticky top-0 flex h-screen items-center justify-start p-8 md:p-20">
-          <div className="max-w-xl">
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-8 px-8 text-center md:p-20">
+          <div>
             <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.4em] text-[#ff6a4d]/80">
-              Feature II · −48 dB · Real time
+              Feature II · −48 dB · Hybrid ANC
             </p>
             <h2 data-reveal className="font-display text-[clamp(2.6rem,7vw,6.5rem)] font-bold uppercase leading-none tracking-tighter">
               Silence<br />the world.
             </h2>
-            <p data-reveal className="mt-8 max-w-md text-base font-light leading-relaxed text-white/50">
-              Eight hundred samples per second, inverted and erased. Six
-              microphones listen so you don&apos;t have to. Watch the red chaos
-              dissolve against the array — that is the sound of nothing.
-            </p>
           </div>
+          <div className="w-full max-w-3xl">
+            <AncInterference />
+          </div>
+          <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
+            Eight hundred samples per second, inverted and erased. Six
+            microphones listen so you don&apos;t have to. Watch the red chaos
+            dissolve against the array — that is the sound of nothing.
+          </p>
         </div>
       </Scene>
 
@@ -1803,19 +1885,22 @@ export default function CinematicOverlay() {
         <TechLabel n="PWR" className="right-[10%] top-[24%]">Pathway telemetry</TechLabel>
         <ActMark act={6} />
         <div data-content className="sticky top-0 flex h-screen items-end justify-end p-8 md:p-20">
-          <div className="max-w-lg text-right">
+          <div className="max-w-2xl text-right">
             <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.4em] text-[#ffb45e]/90">
               Feature III · Energy architecture
             </p>
             <h2 data-reveal className="font-display text-[clamp(2.6rem,7vw,6.5rem)] font-bold uppercase leading-none tracking-tighter">
               48 hours.<br />
-              <span className="text-white/40">Zero anxiety.</span>
+              <span className="text-white/55">Zero anxiety.</span>
             </h2>
-            <p data-reveal className="mt-8 text-base font-light leading-relaxed text-white/50">
+            <p data-reveal className="mt-8 text-base font-light leading-relaxed text-white/65">
               Follow the current: a steel-case cell feeding a 3nm amplifier
               through pathways thinner than a human hair. Ten minutes of
               charge buys five hours of soundtrack.
             </p>
+            <div className="mt-10 w-full">
+              <CurrentPath />
+            </div>
           </div>
         </div>
       </Scene>
@@ -1824,15 +1909,18 @@ export default function CinematicOverlay() {
       <Scene id="connect" act={6}>
         <GridBackdrop opacity={0.3} />
         <ActMark act={6} />
-        <div data-content className="sticky top-0 flex h-screen items-center justify-end p-8 text-right md:p-20">
-          <div className="max-w-xl">
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-20">
+          <div className="hidden md:block">
+            <SignalRings count={5} />
+          </div>
+          <div className="max-w-xl md:text-right">
             <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.4em] text-[#57e6ff]/80">
-              Feature V · Bluetooth 6.0 · LE Audio
+              Feature IV · Bluetooth 6.0 · LE Audio
             </p>
             <h2 data-reveal className="font-display text-[clamp(2.4rem,6.5vw,6rem)] font-bold uppercase leading-none tracking-tighter">
-              Invisible wire.<br /><span className="text-white/40">Zero doubt.</span>
+              Invisible wire.<br /><span className="text-white/55">Zero doubt.</span>
             </h2>
-            <p data-reveal className="mt-8 ml-auto max-w-md text-base font-light leading-relaxed text-white/50">
+            <p data-reveal className="mt-8 max-w-md text-base font-light leading-relaxed text-white/65 md:ml-auto">
               Dual antennas woven into the structure itself. Multipoint pairing
               across three devices. Auracast broadcast for sharing a moment
               with a stranger on a train.
@@ -1850,7 +1938,7 @@ export default function CinematicOverlay() {
         <GridBackdrop opacity={0.3} />
         <TechLabel n="IMU" className="left-[10%] top-[24%]">Head-tracking · 1000 Hz</TechLabel>
         <ActMark act={7} />
-        <div data-content className="sticky top-0 flex h-screen items-center justify-start p-8 md:p-20">
+        <div data-content className="sticky top-0 flex h-screen items-center justify-between gap-12 p-8 md:p-20">
           <div className="max-w-xl">
             <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.4em] text-[#b48cff]/90">
               Feature IV · 360° soundstage
@@ -1858,11 +1946,14 @@ export default function CinematicOverlay() {
             <h2 data-reveal className="font-display text-[clamp(2.4rem,6.5vw,6rem)] font-bold uppercase leading-none tracking-tighter">
               The room<br />follows you.
             </h2>
-            <p data-reveal className="mt-8 max-w-md text-base font-light leading-relaxed text-white/50">
+            <p data-reveal className="mt-8 max-w-md text-base font-light leading-relaxed text-white/65">
               Head-tracked spatial audio pins every instrument to a point in
               real space. Turn your head — the orchestra stays exactly where
               the recording put it.
             </p>
+          </div>
+          <div className="hidden md:block">
+            <SpatialField />
           </div>
         </div>
       </Scene>
@@ -1872,14 +1963,15 @@ export default function CinematicOverlay() {
         <GiantWord text="Surface" className="inset-x-0 top-[22%] text-center text-[14vw]" opacity={0.04} />
         <ActMark act={7} />
         <div data-content className="sticky top-0 flex h-screen flex-col justify-center p-8 md:p-20">
-          <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/30">
+          <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/55">
             Experience · Craftsmanship
           </p>
           <h2 data-reveal className="max-w-[16ch] font-display text-[clamp(2.2rem,5.5vw,5rem)] font-bold uppercase leading-[1.02] tracking-tighter">
             Materials chosen by touch,<br />
-            <span className="text-white/40">kept by trust.</span>
+            <span className="text-white/55">kept by trust.</span>
           </h2>
-          <div className="mt-12 grid max-w-2xl grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2">
+          <MaterialSwatches />
+          <div className="mt-10 grid max-w-2xl grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2">
             {[
               ["Ceramic-gloss shell", "Fingerprint-proof, cold to the first touch, warm after a minute."],
               ["Medical silicone", "Hypoallergenic tips in four sizes, memory-set for your canal."],
@@ -1888,7 +1980,7 @@ export default function CinematicOverlay() {
             ].map(([t, d]) => (
               <div key={t} data-reveal className="border-l border-white/15 pl-5">
                 <p className="text-sm font-semibold uppercase tracking-widest">{t}</p>
-                <p className="mt-1.5 text-xs font-light leading-relaxed text-white/40">{d}</p>
+                <p className="mt-1.5 text-xs font-light leading-relaxed text-white/45">{d}</p>
               </div>
             ))}
           </div>
@@ -1933,24 +2025,46 @@ export default function CinematicOverlay() {
         <ActMark act={8} />
         <div data-content className="sticky top-0 flex h-screen flex-col justify-center px-8 md:px-20">
           <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.2rem)] font-bold uppercase leading-none tracking-tighter">
-            Versus<br /><span className="text-white/40">everything else.</span>
+            Versus<br /><span className="text-white/55">everything else.</span>
           </h2>
-          <div className="mt-12 max-w-3xl space-y-0">
-            {[
-              ["Total playback", "48 h", "24–32 h"],
-              ["Noise cancelled", "−48 dB", "−38 to −43 dB"],
-              ["Codec ceiling", "LDAC · aptX Lossless", "AAC only"],
-              ["Driver material", "Graphene", "Plastic composite"],
-              ["Case machining", "CNC aluminium", "Injected polymer"],
-            ].map(([label, ours, theirs], i) => (
-              <div key={label} data-reveal className={`grid grid-cols-[1fr_auto_auto] items-baseline gap-6 py-5 ${i > 0 ? "border-t border-white/10" : ""}`}>
-                <p className="text-xs uppercase tracking-[0.25em] text-white/50">{label}</p>
-                <p className="font-mono text-sm font-semibold text-[#57e6ff]">{ours}</p>
-                <p className="font-mono text-xs text-white/30">{theirs}</p>
-              </div>
-            ))}
+          <div className="mt-12 max-w-3xl">
+            <ComparisonBar
+              label="Total playback"
+              ours="48 h"
+              theirs="28 h"
+              oursPct={92}
+              theirsPct={55}
+            />
+            <ComparisonBar
+              label="Noise cancelled"
+              ours="−48 dB"
+              theirs="−40 dB"
+              oursPct={95}
+              theirsPct={70}
+            />
+            <ComparisonBar
+              label="Codec ceiling"
+              ours="LDAC · aptX Lossless"
+              theirs="AAC only"
+              oursPct={88}
+              theirsPct={40}
+            />
+            <ComparisonBar
+              label="Driver material"
+              ours="Graphene · 3 µm"
+              theirs="Plastic composite"
+              oursPct={92}
+              theirsPct={45}
+            />
+            <ComparisonBar
+              label="Case machining"
+              ours="CNC aluminium"
+              theirs="Injected polymer"
+              oursPct={90}
+              theirsPct={35}
+            />
           </div>
-          <p data-reveal className="mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-white/25">
+          <p data-reveal className="mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-white/35">
             Category averages · flagship tier · 2026
           </p>
         </div>
@@ -1964,14 +2078,15 @@ export default function CinematicOverlay() {
       <Scene id="reassembly" act={9}>
         <GridBackdrop opacity={0.25} />
         <ActMark act={9} />
-        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
-          <p data-reveal className="mb-8 font-mono text-xs uppercase tracking-[0.6em] text-white/40">
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
+          <ConvergingParticles />
+          <p data-reveal className="mb-8 font-mono text-xs uppercase tracking-[0.6em] text-white/55">
             Act IX · Everything Returns
           </p>
-          <h2 data-reveal className="font-display text-[clamp(1.6rem,4vw,3.4rem)] font-light uppercase tracking-[0.35em] text-white/70">
+          <h2 data-reveal className="font-display text-[clamp(1.6rem,4vw,3.4rem)] font-light uppercase tracking-[0.35em] text-white/75">
             Perfectly in tune.
           </h2>
-          <p data-reveal className="mt-8 max-w-sm text-sm font-light leading-relaxed text-white/40">
+          <p data-reveal className="mt-8 max-w-sm text-sm font-light leading-relaxed text-white/55">
             Every part finds its way home. The magnetic clack you just heard?
             That was forty-one minutes of machining agreeing with itself.
           </p>
@@ -1983,22 +2098,44 @@ export default function CinematicOverlay() {
         <GiantWord text="Forever" className="inset-x-0 top-[14%] text-center text-[15vw]" opacity={0.03} />
         <CornerFrame />
         <TechLabel n="EOF" className="left-[8%] top-[26%]">End of transmission</TechLabel>
-        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
-          <p data-reveal className="mb-8 text-[11px] uppercase tracking-[0.5em] text-white/35">
+        <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-6 px-6 text-center">
+          <p data-reveal className="mb-4 text-[11px] uppercase tracking-[0.5em] text-white/45">
             The future of listening ships spring 2027
           </p>
-          <h2 className="font-display text-[clamp(3.4rem,12vw,11rem)] font-bold uppercase leading-[0.95] tracking-tighter">
-            <span data-reveal className="block">Hear</span>
-            <span data-reveal className="block text-white/40">Everything.</span>
-          </h2>
+          <div className="relative">
+            <Halo />
+            <h2 className="font-display text-[clamp(3.4rem,12vw,11rem)] font-bold uppercase leading-[0.95] tracking-tighter">
+              <span data-reveal className="block">Hear</span>
+              <span
+                data-reveal
+                className="block"
+                style={{ color: "rgba(87,230,255,0.85)", textShadow: "0 0 60px rgba(87,230,255,0.35)" }}
+              >
+                Everything.
+              </span>
+            </h2>
+          </div>
+          <p
+            data-reveal
+            className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#ffb45e]/40 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.35em] text-[#ffb45e]/90"
+          >
+            Limited to first 1000
+          </p>
           <button
             data-cta
             data-hover
-            className="mt-14 rounded-full bg-white px-12 py-5 text-sm font-bold uppercase tracking-[0.25em] text-black transition-colors duration-300 hover:bg-[#57e6ff]"
+            onClick={() => {
+              // Placeholder — wire to a real checkout URL when ready
+              // eslint-disable-next-line no-console
+              console.log("[AURA] pre-order clicked");
+            }}
+            className="cta-glow mt-6 inline-flex items-center gap-3 rounded-full bg-white px-12 py-5 text-sm font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:scale-[1.03] hover:bg-[#57e6ff]"
           >
-            Pre-Order — $349
+            <span>Pre-Order</span>
+            <span className="font-mono">$349</span>
+            <span aria-hidden>→</span>
           </button>
-          <div className="absolute bottom-8 flex w-full items-center justify-between px-8 text-[10px] uppercase tracking-[0.3em] text-white/25 md:px-20">
+          <div className="mt-12 flex w-full items-center justify-between px-8 text-[10px] uppercase tracking-[0.3em] text-white/30 md:px-20">
             <span>Aura Audio © 2026</span>
             <span>Designed in silence</span>
           </div>

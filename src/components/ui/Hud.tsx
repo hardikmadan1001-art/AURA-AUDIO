@@ -141,8 +141,8 @@ export default function Hud() {
         <span className="font-mono text-[9px] text-white/40">{String(SCENES.length).padStart(2, "0")}</span>
       </div>
 
-      {/* Percentage */}
-      <div className="fixed bottom-6 right-6 z-40 mix-blend-difference md:bottom-10 md:right-10">
+      {/* Percentage — moved up-left so it doesn't collide with audio player */}
+      <div className="fixed bottom-20 right-6 z-40 mix-blend-difference md:bottom-24 md:right-10">
         <span ref={pct} className="font-mono text-xs text-white/70">00%</span>
       </div>
     </>

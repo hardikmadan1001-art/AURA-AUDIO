@@ -5,6 +5,7 @@ import Hud from "@/components/ui/Hud";
 import CustomCursor from "@/components/ui/CustomCursor";
 import ActWipe from "@/components/ui/ActWipe";
 import AuraLoader from "@/components/ui/AuraLoader";
+import AudioPlayer from "@/components/ui/AudioPlayer";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <CinematicOverlay />
       </SmoothScroll>
       <ActWipe />
+      <AudioPlayer />
     </main>
   );
 }
