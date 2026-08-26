@@ -3,11 +3,10 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-const SCENE_COUNT = 9;
+import { SCENES, ACTS } from "@/lib/story";
 
 /**
- * Fixed HUD: brand mark, scene index, progress rail and live percentage.
+ * Fixed HUD: brand mark, act + scene index, progress rail, live percentage.
  * All updates are written straight to the DOM — zero React re-renders.
  */
 export default function Hud() {
@@ -15,6 +14,7 @@ export default function Hud() {
   const pct = useRef<HTMLSpanElement>(null);
   const index = useRef<HTMLSpanElement>(null);
   const name = useRef<HTMLSpanElement>(null);
+  const act = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -25,26 +25,35 @@ export default function Hud() {
         end: "bottom bottom",
         onUpdate: (self) => {
           if (fill.current) fill.current.style.transform = `scaleY(${self.progress})`;
-          if (pct.current) pct.current.textContent = `${String(Math.round(self.progress * 100)).padStart(2, "0")}%`;
-          const i = Math.min(SCENE_COUNT - 1, Math.floor(self.progress * SCENE_COUNT));
-          if (index.current) index.current.textContent = `0${i + 1}`;
+          if (pct.current) pct.current.textContent = `${Math.round(self.progress * 100)
+            .toString()
+            .padStart(2, "0")}%`;
         },
       });
 
-      gsap.utils.toArray<HTMLElement>("[data-scene]").forEach((section, i) => {
+      // Per-scene triggers keep index / name / act in lockstep with the DOM.
+      SCENES.forEach((scene, i) => {
+        const section = document.getElementById(`scene-${scene.id}`);
+        if (!section) return;
         ScrollTrigger.create({
           trigger: section,
           start: "top 60%",
           end: "bottom 40%",
           onToggle: (self) => {
-            if (!self.isActive || !name.current) return;
-            name.current.textContent = section.dataset.name ?? "";
-            gsap.fromTo(
-              name.current.parentElement,
-              { opacity: 0, y: 8 },
-              { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-            );
-            void i;
+            if (!self.isActive) return;
+            if (index.current)
+              index.current.textContent = String(i + 1).padStart(2, "0");
+            if (name.current) name.current.textContent = scene.name;
+            if (act.current)
+              act.current.textContent = `ACT ${ACTS[scene.act - 1].n}`;
+            const nameEl = name.current?.parentElement;
+            if (nameEl) {
+              gsap.fromTo(
+                nameEl,
+                { opacity: 0, y: 8 },
+                { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+              );
+            }
           },
         });
       });
@@ -52,42 +61,84 @@ export default function Hud() {
     return () => ctx.revert();
   }, []);
 
+  const scrollToFinal = () => {
+    const el = document.getElementById("scene-final");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <>
-      {/* Brand mark */}
-      <div className="fixed left-6 top-6 z-40 mix-blend-difference md:left-10 md:top-10">
+      {/* Brand mark (clickable — back to top) */}
+      <button
+        onClick={scrollToTop}
+        aria-label="Back to top"
+        className="fixed left-6 top-6 z-40 mix-blend-difference md:left-10 md:top-10"
+      >
         <p className="font-display text-lg font-bold uppercase tracking-[0.3em]">
           Aura<span className="align-super text-[9px]">®</span>
         </p>
-      </div>
+      </button>
 
-      {/* Ghost menu link */}
-      <div className="fixed right-6 top-6 z-40 hidden mix-blend-difference md:right-10 md:top-10 md:block">
-        <button data-hover className="text-[11px] uppercase tracking-[0.35em] text-white/70 transition-colors hover:text-white">
+      {/* Pre-Order button — wired to final scene */}
+      <div className="fixed right-6 top-6 z-40 hidden md:right-10 md:top-10 md:block">
+        <button
+          data-hover
+          onClick={scrollToFinal}
+          className="rounded-full border border-white/30 px-4 py-2 text-[11px] uppercase tracking-[0.35em] text-white/80 backdrop-blur-sm transition-colors hover:border-[#57e6ff] hover:text-[#57e6ff]"
+        >
           Pre-Order
         </button>
       </div>
 
-      {/* Scene index + name */}
+      {/* Act + scene index + name */}
       <div className="fixed bottom-6 left-6 z-40 flex items-center gap-4 mix-blend-difference md:bottom-10 md:left-10">
+        <span ref={act} className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#57e6ff]/90">
+          ACT I
+        </span>
         <span ref={index} className="font-mono text-xs text-white">01</span>
         <span className="h-px w-8 bg-white/30" />
         <span ref={name} className="text-[11px] uppercase tracking-[0.35em] text-white/80">
-          Silence
+          Overture
         </span>
       </div>
 
-      {/* Progress rail */}
+      {/* Progress rail with act notches */}
       <div className="fixed right-5 top-1/2 z-40 flex -translate-y-1/2 flex-col items-center gap-4 md:right-9">
         <span className="font-mono text-[9px] text-white/40">01</span>
         <div className="relative h-36 w-px overflow-hidden bg-white/15">
           <div
             ref={fill}
-            className="absolute inset-x-0 top-0 h-full origin-top bg-white"
+            className="absolute inset-x-0 top-0 h-full origin-top bg-[#57e6ff]"
             style={{ transform: "scaleY(0)" }}
           />
+          {/* Act notches at cumulative progress positions */}
+          {(() => {
+            const total = SCENES.reduce((sum, s) => sum + s.vh, 0);
+            let acc = 0;
+            const seen = new Set<number>();
+            return SCENES.map((s, idx) => {
+              acc += s.vh;
+              const pct = acc / total;
+              if (idx === SCENES.length - 1) return null;
+              const actN = s.act;
+              if (seen.has(actN)) return null;
+              seen.add(actN);
+              return (
+                <span
+                  key={s.id}
+                  aria-hidden
+                  className="hud-act-notch"
+                  style={{ top: `${pct * 100}%` }}
+                />
+              );
+            });
+          })()}
         </div>
-        <span className="font-mono text-[9px] text-white/40">09</span>
+        <span className="font-mono text-[9px] text-white/40">{String(SCENES.length).padStart(2, "0")}</span>
       </div>
 
       {/* Percentage */}

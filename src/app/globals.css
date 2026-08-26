@@ -1,35 +1,197 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --color-aura-cyan: #57e6ff;
+  --color-aura-amber: #ffb45e;
+  --color-aura-violet: #b48cff;
+  --color-aura-red: #ff6a4d;
+}
 
 :root {
   --background: #000;
   --foreground: #fff;
 }
 
+html {
+  background: #000;
+  scroll-behavior: auto; /* Lenis owns scrolling */
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 canvas {
-  touch-action: none;
+  touch-action: pan-y;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* Hide the native cursor when the custom one is active (fine pointers) */
+.no-native-cursor,
+.no-native-cursor * {
+  cursor: none !important;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+/* Outlined display type */
+.text-stroke {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.25);
+  color: transparent;
+}
+
+/* Blueprint grid backdrop for scene density */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* Cinematic letterbox bars (toggled after first scroll) */
+.letterbox::before,
+.letterbox::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 4.5vh;
+  background: #000;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 1.2s ease;
+}
+.letterbox::before { top: 0; }
+.letterbox::after { bottom: 0; }
+html:not(.letterbox) body::before,
+html:not(.letterbox) body::after { opacity: 0; }
+
+/* Engineering scanlines overlay — visible only early on */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+  transition: opacity 1.6s ease;
+}
+html.scanned .scanlines { opacity: 1; }
+html:not(.scanned) .scanlines { opacity: 0; }
+
+/* Focal cyan halo behind hero headlines */
+.aura-halo {
+  position: absolute;
+  inset: -10% -20%;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(87, 230, 255, 0.10), transparent 60%);
+  pointer-events: none;
+}
+
+/* Vignette wrapper around the experience */
+.vignette-wrap::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+}
+
+/* Act-transition cyan wipe line */
+.act-wipe {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, #57e6ff 30%, #57e6ff 70%, transparent);
+  box-shadow: 0 0 18px rgba(87, 230, 255, 0.7);
+  z-index: 70;
+  pointer-events: none;
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+/* CTA glow pulse */
+.cta-glow {
+  box-shadow: 0 0 0 rgba(87, 230, 255, 0);
+  animation: ctaPulse 2.6s ease-in-out infinite;
+}
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(87, 230, 255, 0); }
+  50% { box-shadow: 0 0 40px rgba(87, 230, 255, 0.4); }
+}
+
+/* Loading screen */
+.aura-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s ease;
+}
+.aura-loader.hidden { opacity: 0; pointer-events: none; }
+.aura-loader-bar {
+  width: 160px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.aura-loader-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #57e6ff, transparent);
+  animation: loaderSweep 1.4s ease-in-out infinite;
+}
+@keyframes loaderSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* HUD act notch on progress rail */
+.hud-act-notch {
+  position: absolute;
+  left: -3px;
+  width: 7px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
 }
 
 ::selection {
   background: white;
   color: black;
+}
+
+/* Focus visibility for keyboard users on cursor-disabled elements */
+.no-native-cursor [data-hover]:focus-visible,
+.no-native-cursor button:focus-visible,
+.no-native-cursor a:focus-visible {
+  outline: 1px solid #57e6ff;
+  outline-offset: 4px;
 }

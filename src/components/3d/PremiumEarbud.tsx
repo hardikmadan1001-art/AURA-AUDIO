@@ -1,14 +1,29 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import {
   scrollState,
   win,
+  T,
   computeExplode,
-  clamp01,
+  computeBudLift,
+  computeSeparation,
+  computeStageRise,
 } from "@/lib/scrollState";
+import ChargingCase from "./ChargingCase";
+import {
+  Dust,
+  SoundWaves,
+  NoiseField,
+  PowerSystem,
+  SpatialHalo,
+  SignalRings,
+  WaveLines,
+  HazePlanes,
+  GridFloor,
+} from "./Atmospheres";
 
 /* ------------------------------------------------------------------ */
 /* ExplodePart — a component with a home position and an escape vector */
@@ -44,278 +59,12 @@ function ExplodePart({
 }
 
 /* ------------------------------------------------------------------ */
-/* Ambient dust — the "invisible sound becoming visible" atmosphere    */
+/* EarbudModel — one earbud, assembled from its component chapters     */
 /* ------------------------------------------------------------------ */
 
-function Dust() {
-  const ref = useRef<THREE.Points>(null);
-  const matRef = useRef<THREE.PointsMaterial>(null);
-
-  const positions = useMemo(() => {
-    const count = 700;
-    const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 16;
-      arr[i * 3 + 1] = (Math.random() - 0.5) * 10;
-      arr[i * 3 + 2] = (Math.random() - 0.5) * 10;
-    }
-    return arr;
-  }, []);
-
-  useFrame(({ clock }) => {
-    if (ref.current) ref.current.rotation.y = clock.elapsedTime * 0.01;
-    // Heaviest presence during SILENCE, thins out once the product lands.
-    if (matRef.current) {
-      matRef.current.opacity =
-        0.4 * (1 - win(scrollState.progress, 0.1, 0.25)) +
-        0.12 * (1 - win(scrollState.progress, 0.25, 1));
-    }
-  });
-
+function EarbudModel() {
   return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial
-        ref={matRef}
-        size={0.018}
-        color="#9fb8c8"
-        transparent
-        opacity={0.4}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Frequency rings — Scene 5, sound made physical                      */
-/* ------------------------------------------------------------------ */
-
-function SoundWaves() {
-  const group = useRef<THREE.Group>(null);
-  const mats = useRef<THREE.MeshBasicMaterial[]>([]);
-
-  useFrame(({ clock }) => {
-    const p = scrollState.progress;
-    const visibility = win(p, 0.52, 0.58) * (1 - win(p, 0.66, 0.72));
-    const t = clock.elapsedTime;
-    group.current?.children.forEach((child, i) => {
-      const phase = (t * 0.45 + i / 3) % 1;
-      child.scale.setScalar(0.35 + phase * 2.1);
-      const m = mats.current[i];
-      if (m) m.opacity = visibility * (1 - phase) * 0.85;
-    });
-  });
-
-  return (
-    <group ref={group} rotation={[0, 0, Math.PI / 2]}>
-      {[0, 1, 2].map((i) => (
-        <mesh key={i}>
-          <torusGeometry args={[1, 0.008, 8, 96]} />
-          <meshBasicMaterial
-            ref={(m) => {
-              if (m) mats.current[i] = m;
-            }}
-            color="#5ee6ff"
-            transparent
-            opacity={0}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* ANC noise field — Scene 6, chaos collapsing to silence              */
-/* ------------------------------------------------------------------ */
-
-const NOISE_COUNT = 380;
-
-function NoiseField() {
-  const ref = useRef<THREE.Points>(null);
-  const matRef = useRef<THREE.PointsMaterial>(null);
-  const seeds = useMemo(
-    () =>
-      Array.from({ length: NOISE_COUNT }, () => ({
-        theta: Math.random() * Math.PI * 2,
-        phi: Math.acos(2 * Math.random() - 1),
-        r: 2.2 + Math.random() * 5,
-        speed: 1.4 + Math.random() * 1.6,
-      })),
-    []
-  );
-  const positions = useMemo(() => new Float32Array(NOISE_COUNT * 3), []);
-
-  useFrame((_, dt) => {
-    const p = scrollState.progress;
-    const active = win(p, 0.62, 0.68) * (1 - win(p, 0.76, 0.82));
-    if (matRef.current) matRef.current.opacity = active * 0.7;
-    const geo = ref.current?.geometry as THREE.BufferGeometry | undefined;
-    const attr = geo?.getAttribute("position") as THREE.BufferAttribute | undefined;
-    if (!attr || active <= 0) return;
-
-    const d = Math.min(dt, 0.05);
-    seeds.forEach((s, i) => {
-      s.r -= d * s.speed;
-      if (s.r < 1.15) {
-        // The point reached the microphone shell — cancelled.
-        s.r = 6.5 + Math.random() * 1.5;
-      }
-      positions[i * 3] = s.r * Math.sin(s.phi) * Math.cos(s.theta);
-      positions[i * 3 + 1] = s.r * Math.cos(s.phi);
-      positions[i * 3 + 2] = s.r * Math.sin(s.phi) * Math.sin(s.theta);
-    });
-    attr.needsUpdate = true;
-  });
-
-  return (
-    <points ref={ref} frustumCulled={false}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial
-        ref={matRef}
-        size={0.03}
-        color="#ff6a4d"
-        transparent
-        opacity={0}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Power pathways — Scene 7, energy made visible                       */
-/* ------------------------------------------------------------------ */
-
-const PATHS: Vec3[][] = [
-  [
-    [-0.55, -0.62, 0.15],
-    [-0.2, -0.3, 0.1],
-    [0.15, 0.1, 0],
-    [0.32, 0.42, 0.05],
-  ],
-  [
-    [-0.55, -0.62, 0.15],
-    [-0.15, -0.15, -0.25],
-    [0.2, 0.05, -0.3],
-    [0.38, 0.38, -0.2],
-  ],
-  [
-    [-0.55, -0.62, 0.15],
-    [-0.65, -0.1, 0.3],
-    [-0.5, 0.35, 0.25],
-    [-0.3, 0.62, 0.1],
-  ],
-];
-
-function PowerSystem() {
-  const tubes = useRef<THREE.Mesh[]>([]);
-  const tubeMats = useRef<THREE.MeshStandardMaterial[]>([]);
-  const orbs = useRef<THREE.Mesh[]>([]);
-  const curves = useMemo(
-    () => PATHS.map((pts) => new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p)))),
-    []
-  );
-
-  useFrame(({ clock }) => {
-    const p = scrollState.progress;
-    const energy = win(p, 0.74, 0.79) * (1 - win(p, 0.86, 0.92));
-    const pulse = 1.6 + Math.sin(clock.elapsedTime * 7) * 0.9;
-    tubeMats.current.forEach((m) => {
-      if (m) m.emissiveIntensity = energy * pulse;
-    });
-    orbs.current.forEach((orb, i) => {
-      if (!orb) return;
-      const curve = curves[i % curves.length];
-      const tt = (clock.elapsedTime * 0.3 + i * 0.37) % 1;
-      orb.position.copy(curve.getPoint(tt));
-      const s = energy * (0.5 + Math.sin(tt * Math.PI) * 0.8);
-      orb.scale.setScalar(Math.max(s, 0.0001));
-    });
-  });
-
-  return (
-    <group>
-      {curves.map((_, i) => (
-        <group key={i}>
-          <mesh
-            ref={(m) => {
-              if (m) tubes.current[i] = m;
-            }}
-          >
-            <tubeGeometry args={[curves[i], 40, 0.014, 8, false]} />
-            <meshStandardMaterial
-              ref={(m) => {
-                if (m) tubeMats.current[i] = m;
-              }}
-              color="#1a1206"
-              emissive="#ffb45e"
-              emissiveIntensity={0}
-              toneMapped={false}
-            />
-          </mesh>
-          <mesh
-            ref={(m) => {
-              if (m) orbs.current[i * 2] = m;
-            }}
-          >
-            <sphereGeometry args={[0.035, 12, 12]} />
-            <meshBasicMaterial color="#ffd9a0" toneMapped={false} />
-          </mesh>
-          <mesh
-            ref={(m) => {
-              if (m) orbs.current[i * 2 + 1] = m;
-            }}
-          >
-            <sphereGeometry args={[0.028, 12, 12]} />
-            <meshBasicMaterial color="#fff3e0" toneMapped={false} />
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* The earbud                                                          */
-/* ------------------------------------------------------------------ */
-
-export default function PremiumEarbud() {
-  const root = useRef<THREE.Group>(null);
-
-  useFrame(({ clock }, dt) => {
-    const p = scrollState.progress;
-    scrollState.explode = computeExplode(p);
-
-    const g = root.current;
-    if (!g) return;
-
-    // SCENE 1 — emerge from the darkness below.
-    g.position.y = -2.6 * (1 - win(p, 0.02, 0.13));
-
-    // Scroll-linked rotation choreography; freezes naturally because it
-    // is scrub-driven, plus a slow idle sway so it never feels dead.
-    const revealSpin = win(p, 0.24, 0.38) * Math.PI * 0.9;
-    const explodeSpin = scrollState.explode * 0.55;
-    g.rotation.y = p * Math.PI * 1.5 + revealSpin + explodeSpin;
-    g.rotation.z = Math.sin(clock.elapsedTime * 0.4) * 0.04;
-    g.rotation.x = Math.sin(clock.elapsedTime * 0.31) * 0.03;
-    g.position.y += Math.sin(clock.elapsedTime * 0.8) * 0.06;
-
-    void dt;
-  });
-
-  return (
-    <group ref={root}>
+    <>
       {/* ---------- Outer shells ---------- */}
       <ExplodePart base={[0, 0, 0]} dir={[2.1, 0.28, 0.15]} spin={0.5}>
         {/* Front shell — gloss black ceramic */}
@@ -503,12 +252,112 @@ export default function PremiumEarbud() {
           <meshStandardMaterial color="#111318" roughness={0.7} />
         </mesh>
       </ExplodePart>
+    </>
+  );
+}
 
-      {/* ---------- Atmospheric systems ---------- */}
+/* ------------------------------------------------------------------ */
+/* BudRig — one earbud's journey through the whole film                */
+/* ------------------------------------------------------------------ */
+
+const SEAT_X = 0.52; // matches the case wells
+const SEAT_Y = 0.78;
+/* Formation geometry: bud radius is ~1 at full scale, so ±1.35 puts a
+ * clear gap between the shells; the later separation beat widens it
+ * further to ±1.85. Two objects, never one merged silhouette. */
+const FORM_X = 1.35;
+const FORM_Y = 1.02;
+const SEP_EXTRA = 0.5;
+
+function BudRig({ side }: { side: 1 | -1 }) {
+  const g = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    const grp = g.current;
+    if (!grp) return;
+    const p = scrollState.progress;
+    const t = clock.elapsedTime;
+
+    // Each bud owns its clock: staggered lift, then a shared but
+    // independent separation drift.
+    const lift = computeBudLift(p, side);
+    const sep = computeSeparation(p);
+    const phase = side === 1 ? 0 : 1.9; // de-sync every idle motion
+
+    // Position: well -> formation on its own schedule, plus the extra
+    // outward drift and a slight z offset so paths never coincide.
+    const x = side * (THREE.MathUtils.lerp(SEAT_X, FORM_X, lift) + sep * SEP_EXTRA);
+    const y =
+      THREE.MathUtils.lerp(SEAT_Y, FORM_Y, lift) +
+      lift * Math.sin(t * 0.8 + phase) * 0.05;
+    const z = side * 0.09;
+    grp.position.set(x, y, z);
+
+    // Grow from case-scale to hero-scale per bud — the cinematic
+    // "small object becomes monumental" trick, now individual.
+    grp.scale.setScalar(THREE.MathUtils.lerp(0.34, 1, lift));
+
+    // Rotation: mirrored scroll-linked turn (opposite directions), an
+    // individual reveal flourish, mirrored explode tumble and de-phased
+    // idle sway. The two buds never move in lockstep.
+    const explodeSpin = scrollState.explode * 0.55;
+    grp.rotation.y =
+      side * 0.5 +
+      p * Math.PI * (side === 1 ? 1.6 : -1.25) +
+      lift * Math.PI * 0.85 * side +
+      explodeSpin * side +
+      Math.sin(t * 0.31 + phase) * 0.04;
+    grp.rotation.x = Math.sin(t * 0.29 + phase) * 0.03;
+    grp.rotation.z = Math.sin(t * 0.41 + phase * 0.5) * 0.04;
+  });
+
+  return (
+    <group ref={g}>
+      <EarbudModel />
+    </group>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* ProductStage — case + earbuds + every atmospheric instrument        */
+/* ------------------------------------------------------------------ */
+
+export default function PremiumEarbud() {
+  const root = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    const p = scrollState.progress;
+    scrollState.explode = computeExplode(p);
+
+    const g = root.current;
+    if (!g) return;
+
+    // ACT II — the vessel ascends out of the void below.
+    const emerged = computeStageRise(p);
+    // ACT III aftermath — the composition settles once free of the case.
+    const sink = win(p, T.separation.start, T.separation.end) * 0.5;
+
+    g.position.y = -6.5 * (1 - emerged) - sink;
+    g.position.y += Math.sin(clock.elapsedTime * 0.8) * 0.05;
+    g.rotation.y = Math.sin(clock.elapsedTime * 0.12) * 0.06;
+  });
+
+  return (
+    <group ref={root}>
+      <ChargingCase />
+      <BudRig side={1} />
+      <BudRig side={-1} />
+
+      {/* Atmospheric instruments */}
       <Dust />
+      <WaveLines />
+      <HazePlanes />
+      <GridFloor />
       <SoundWaves />
       <NoiseField />
       <PowerSystem />
+      <SpatialHalo />
+      <SignalRings />
     </group>
   );
 }

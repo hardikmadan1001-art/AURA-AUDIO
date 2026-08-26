@@ -14,7 +14,9 @@ export default function CustomCursor() {
 
   useEffect(() => {
     if (!window.matchMedia("(pointer: fine)").matches) return;
-    setEnabled(true);
+    // Defer the state flip to a task so we never setState synchronously
+    // inside the effect body (cascading-render guard).
+    const enableRaf = requestAnimationFrame(() => setEnabled(true));
     document.documentElement.classList.add("no-native-cursor");
 
     const setX = (el: HTMLElement, x: number) => gsap.quickSetter(el, "x", "px")(x);
@@ -40,6 +42,7 @@ export default function CustomCursor() {
     window.addEventListener("mousemove", onMove, { passive: true });
     window.addEventListener("mouseover", onOver, { passive: true });
     return () => {
+      cancelAnimationFrame(enableRaf);
       document.documentElement.classList.remove("no-native-cursor");
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseover", onOver);

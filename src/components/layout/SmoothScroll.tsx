@@ -14,6 +14,19 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
+    // Letterbox + scanlines: engaged on first scroll, scanlines fade out
+    // by the Hero scene, letterbox stays the whole way through.
+    const onScroll = () => {
+      if (window.scrollY > 24) {
+        document.documentElement.classList.add("letterbox");
+      }
+      if (window.scrollY > 1200) {
+        document.documentElement.classList.remove("scanned");
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.documentElement.classList.add("scanned");
+
     // Lenis (via ReactLenis) scrolls the native window, so ScrollTrigger
     // just works — we only need to keep it informed and refreshed once
     // fonts/layout have settled.
@@ -25,6 +38,8 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     return () => {
       clearTimeout(t);
       window.removeEventListener("load", refresh);
+      window.removeEventListener("scroll", onScroll);
+      document.documentElement.classList.remove("letterbox", "scanned");
     };
   }, []);
 
