@@ -450,3 +450,46 @@ html:not(.scanned) .scanlines { opacity: 0; }
 .btn-glow:hover::after {
   opacity: 1;
 }
+
+/* ================================================================
+   ACCESSIBILITY — prefers-reduced-motion
+   Users who request reduced motion get static, legible fallbacks
+   with all canvas rotations, particle convergence, SVG animations,
+   and text reveals gracefully simplified.
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Restore native cursor when reduced motion requested */
+  .no-native-cursor,
+  .no-native-cursor * {
+    cursor: auto !important;
+  }
+
+  /* Film grain, light streaks, scanlines — still visible but static */
+  .film-grain,
+  .light-streak,
+  .scanlines,
+  .ambient-noise {
+    animation: none !important;
+  }
+
+  /* Hide custom cursor entirely for reduced-motion users */
+  .custom-cursor-dot,
+  .custom-cursor-ring,
+  .custom-cursor-glow {
+    display: none !important;
+  }
+
+  /* Disable smooth scroll on the Lenis container */
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+}

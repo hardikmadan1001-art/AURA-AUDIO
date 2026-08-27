@@ -10,7 +10,6 @@ import { SCENES, ACTS } from "@/lib/story";
  * All updates are written straight to the DOM — zero React re-renders.
  */
 export default function Hud() {
-  const fill = useRef<HTMLDivElement>(null);
   const pct = useRef<HTMLSpanElement>(null);
   const index = useRef<HTMLSpanElement>(null);
   const name = useRef<HTMLSpanElement>(null);
@@ -24,7 +23,6 @@ export default function Hud() {
         start: "top top",
         end: "bottom bottom",
         onUpdate: (self) => {
-          if (fill.current) fill.current.style.transform = `scaleY(${self.progress})`;
           if (pct.current) pct.current.textContent = `${Math.round(self.progress * 100)
             .toString()
             .padStart(2, "0")}%`;
@@ -106,42 +104,7 @@ export default function Hud() {
         </span>
       </div>
 
-      {/* Progress rail with act notches */}
-      <div className="fixed right-5 top-1/2 z-40 flex -translate-y-1/2 flex-col items-center gap-4 md:right-9">
-        <span className="font-mono text-[9px] text-white/40">01</span>
-        <div className="relative h-36 w-px overflow-hidden bg-white/15">
-          <div
-            ref={fill}
-            className="absolute inset-x-0 top-0 h-full origin-top bg-[#57e6ff]"
-            style={{ transform: "scaleY(0)" }}
-          />
-          {/* Act notches at cumulative progress positions */}
-          {(() => {
-            const total = SCENES.reduce((sum, s) => sum + s.vh, 0);
-            let acc = 0;
-            const seen = new Set<number>();
-            return SCENES.map((s, idx) => {
-              acc += s.vh;
-              const pct = acc / total;
-              if (idx === SCENES.length - 1) return null;
-              const actN = s.act;
-              if (seen.has(actN)) return null;
-              seen.add(actN);
-              return (
-                <span
-                  key={s.id}
-                  aria-hidden
-                  className="hud-act-notch"
-                  style={{ top: `${pct * 100}%` }}
-                />
-              );
-            });
-          })()}
-        </div>
-        <span className="font-mono text-[9px] text-white/40">{String(SCENES.length).padStart(2, "0")}</span>
-      </div>
-
-      {/* Percentage — moved up-left so it doesn't collide with audio player */}
+      {/* Percentage — shown below the ChapterScrubber rail */}
       <div className="fixed bottom-20 right-6 z-40 mix-blend-difference md:bottom-24 md:right-10">
         <span ref={pct} className="font-mono text-xs text-white/70">00%</span>
       </div>

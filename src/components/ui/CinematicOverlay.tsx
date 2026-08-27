@@ -17,7 +17,7 @@ function Halo({ className = "" }: { className?: string }) {
 /** Small caption that links a number to its meaning. */
 function Caption({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/35">
+    <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/55">
       {children}
     </p>
   );
@@ -95,7 +95,7 @@ function TechLabel({
   return (
     <div
       data-reveal
-      className={`pointer-events-none absolute hidden items-center gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/30 md:flex ${className}`}
+      className={`pointer-events-none absolute hidden items-center gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-white/55 md:flex ${className}`}
     >
       <span className="inline-block h-1 w-1 rotate-45 bg-[#57e6ff]/70" />
       <span className="text-[#57e6ff]/60">{n}</span>
@@ -628,7 +628,7 @@ function MaterialSwatches() {
                   : "linear-gradient(135deg,#7a8186,#b8bdc1)",
             }}
           />
-          <p className="text-[9px] uppercase tracking-[0.3em] text-white/45">
+          <p className="text-[9px] uppercase tracking-[0.3em] text-white/65">
             {m.id} · {m.name}
           </p>
         </div>
@@ -676,7 +676,7 @@ function ComparisonBar({
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="w-12 text-[10px] uppercase tracking-[0.3em] text-white/30">
+          <span className="w-12 text-[10px] uppercase tracking-[0.3em] text-white/55">
             theirs
           </span>
           <div className="relative h-2 flex-1 bg-white/5">
@@ -685,7 +685,7 @@ function ComparisonBar({
               style={{ width: `${theirsPct}%` }}
             />
           </div>
-          <span className="w-20 text-right font-mono text-xs text-white/35">
+          <span className="w-20 text-right font-mono text-xs text-white/55">
             {theirs}
           </span>
         </div>
@@ -1042,7 +1042,7 @@ function Countdown({ fromSeconds = 41 * 60 }: { fromSeconds?: number }) {
 function SpecChip({ k, v }: { k: string; v: React.ReactNode }) {
   return (
     <div data-reveal className="border border-white/10 bg-white/[0.02] px-4 py-3 backdrop-blur-sm">
-      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">{k}</p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/55">{k}</p>
       <p className="mt-1 font-display text-sm font-bold uppercase tracking-wide">{v}</p>
     </div>
   );
@@ -1296,7 +1296,7 @@ export default function CinematicOverlay() {
               className="max-w-[12ch] font-display text-[clamp(3rem,10vw,9.5rem)] font-bold uppercase leading-[0.95] tracking-tighter"
             >
               <span className="block overflow-hidden pb-1"><Chars text="Sound is" /></span>
-              <span className="block overflow-hidden pb-2 text-white/45"><Chars text="Invisible." /></span>
+              <span className="block overflow-hidden pb-2 text-white/65"><Chars text="Invisible." /></span>
             </h1>
           </div>
           <p
@@ -1308,7 +1308,7 @@ export default function CinematicOverlay() {
             what does silence look like when it listens back?
           </p>
           <div
-            className="mt-16 flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] text-white/30"
+            className="mt-16 flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] text-white/55"
             style={{ animation: "fadeSlideUp 1s cubic-bezier(0.23, 1, 0.32, 1) 2.4s both" }}
           >
             <span className="h-px w-10 bg-white/30" />
@@ -1398,7 +1398,7 @@ export default function CinematicOverlay() {
                   {s.v}
                   <span className="ml-1 text-sm font-light text-white/40">{s.u}</span>
                 </p>
-                <p className="mt-2 text-[10px] uppercase tracking-[0.3em] text-white/45">{s.l}</p>
+                <p className="mt-2 text-[10px] uppercase tracking-[0.3em] text-white/65">{s.l}</p>
               </div>
             ))}
           </div>
@@ -1468,7 +1468,7 @@ export default function CinematicOverlay() {
             {["Invisible fit", "Invisible latency", "Invisible weight"].map((t) => (
               <div key={t} className="text-center">
                 <div className="mx-auto mb-3 h-px w-12 bg-white/25" />
-                <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">{t}</p>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-white/65">{t}</p>
               </div>
             ))}
           </div>
@@ -1565,9 +1565,9 @@ export default function CinematicOverlay() {
               <div key={n} data-reveal className="flex items-baseline justify-end gap-5 border-r border-white/15 pr-6">
                 <div>
                   <p className="text-sm font-medium uppercase tracking-widest">{t}</p>
-                  <p className="mt-1 text-sm font-light text-white/45">{d}</p>
+                  <p className="mt-1 text-sm font-light text-white/65">{d}</p>
                 </div>
-                <span className="font-mono text-xs text-white/45">{n}</span>
+                <span className="font-mono text-xs text-white/65">{n}</span>
               </div>
             ))}
           </div>
@@ -1610,7 +1610,7 @@ export default function CinematicOverlay() {
             <p data-reveal className="font-display text-[clamp(5rem,12vw,11rem)] font-black leading-none tracking-tighter text-white/[0.12]">
               <Countdown />
             </p>
-            <p data-reveal className="mt-2 font-mono text-[10px] uppercase tracking-[0.35em] text-white/45">
+            <p data-reveal className="mt-2 font-mono text-[10px] uppercase tracking-[0.35em] text-white/65">
               Minutes of machining per shell
             </p>
           </div>
@@ -1628,9 +1628,9 @@ export default function CinematicOverlay() {
               <div key={n} data-reveal className="flex items-baseline justify-end gap-5 border-r border-white/15 pr-6">
                 <div>
                   <p className="text-sm font-medium uppercase tracking-widest">{t}</p>
-                  <p className="mt-1 text-sm font-light text-white/45">{d}</p>
+                  <p className="mt-1 text-sm font-light text-white/65">{d}</p>
                 </div>
-                <span className="font-mono text-xs text-white/45">{n}</span>
+                <span className="font-mono text-xs text-white/65">{n}</span>
               </div>
             ))}
           </div>
@@ -1988,7 +1988,7 @@ export default function CinematicOverlay() {
             <br />
             We built a listener.
           </blockquote>
-          <p data-reveal className="mt-10 font-mono text-[10px] uppercase tracking-[0.4em] text-white/35">
+          <p data-reveal className="mt-10 font-mono text-[10px] uppercase tracking-[0.4em] text-white/55">
             Aura Acoustic Lab · Tuning notes · 2026
           </p>
         </div>
@@ -2290,7 +2290,7 @@ export default function CinematicOverlay() {
             <p data-reveal className="max-w-md text-base font-light leading-relaxed text-white/65">
               A violin sounds like a violin because of its overtones — the
               subtle harmonics stacked above the fundamental. The Aura One
-n              reproduces these faithfully, from the warm 2nd harmonic to the
+              reproduces these faithfully, from the warm 2nd harmonic to the
               shimmer of the 16th.
             </p>
             <div data-reveal className="flex flex-wrap gap-3">
@@ -2345,7 +2345,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
             {["Warmth", "Air", "Decay", "Space"].map((t, i) => (
               <div key={t} className="text-center">
                 <div className="mx-auto mb-2 h-16 w-px" style={{ background: `linear-gradient(to top, transparent, rgba(87,230,255,${0.8 - i * 0.15}), transparent)` }} />
-                <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">{t}</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/65">{t}</p>
               </div>
             ))}
           </div>
@@ -2403,7 +2403,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
             ].map(([t, d]) => (
               <div key={t} data-reveal className="border-l border-white/15 pl-5">
                 <p className="text-sm font-semibold uppercase tracking-widest">{t}</p>
-                <p className="mt-1.5 text-xs font-light leading-relaxed text-white/45">{d}</p>
+                <p className="mt-1.5 text-xs font-light leading-relaxed text-white/65">{d}</p>
               </div>
             ))}
           </div>
@@ -2419,7 +2419,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
         <GridBackdrop opacity={0.3} />
         <ActMark act={8} />
         <div data-content className="sticky top-0 flex h-screen flex-col justify-center p-8 md:p-20">
-          <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/30">
+          <p data-reveal className="mb-6 font-mono text-xs uppercase tracking-[0.45em] text-white/55">
             Act VIII · The Family
           </p>
           <h2 data-reveal className="font-display text-[clamp(2.2rem,5.5vw,5rem)] font-bold uppercase leading-none tracking-tighter">
@@ -2433,9 +2433,9 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
               ["Aura Loop", "Lossless link", "Wi-Fi 7 bridge for studio-grade wireless at home.", "$149"],
             ].map(([name, kind, d, price]) => (
               <div key={name} data-reveal className="border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm transition-colors duration-300 hover:border-white/25">
-                <p className="text-[10px] uppercase tracking-[0.35em] text-white/35">{kind}</p>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-white/55">{kind}</p>
                 <p className="mt-3 font-display text-lg font-bold uppercase tracking-wide">{name}</p>
-                <p className="mt-2 min-h-[3.5rem] text-xs font-light leading-relaxed text-white/45">{d}</p>
+                <p className="mt-2 min-h-[3.5rem] text-xs font-light leading-relaxed text-white/65">{d}</p>
                 <p className="mt-4 font-mono text-sm text-[#57e6ff]/90">{price}</p>
               </div>
             ))}
@@ -2487,7 +2487,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
               theirsPct={35}
             />
           </div>
-          <p data-reveal className="mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-white/35">
+          <p data-reveal className="mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-white/55">
             Category averages · flagship tier · 2026
           </p>
         </div>
@@ -2612,7 +2612,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
               {["Frequency sweep", "Phase coherence", "Leakage test"].map((t) => (
                 <div key={t} className="border border-white/10 bg-white/[0.02] px-4 py-5 backdrop-blur-sm">
                   <div className="mx-auto mb-3 h-8 w-8 rounded-full border border-[#57e6ff]/50" />
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/45">{t}</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/65">{t}</p>
                 </div>
               ))}
             </div>
@@ -2704,7 +2704,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
         <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-6 px-6 text-center">
           <p
             data-reveal
-            className="mb-4 text-[11px] uppercase tracking-[0.5em] text-white/45"
+            className="mb-4 text-[11px] uppercase tracking-[0.5em] text-white/65"
             style={{ animation: "fadeSlideUp 1s cubic-bezier(0.23, 1, 0.32, 1) 0.2s both" }}
           >
             The future of listening ships spring 2027
@@ -2736,7 +2736,7 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
             ].map((s) => (
               <div key={s.k} className="text-center">
                 <p className="font-display text-lg font-bold tracking-tight" style={{ color: "rgba(87,230,255,0.9)" }}>{s.k}</p>
-                <p className="text-[8px] uppercase tracking-[0.3em] text-white/30">{s.l}</p>
+                <p className="text-[8px] uppercase tracking-[0.3em] text-white/55">{s.l}</p>
               </div>
             ))}
           </div>
@@ -2762,12 +2762,12 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
           </button>
 
           {/* Final line — the closing statement */}
-          <p data-reveal className="mt-4 max-w-sm text-[11px] font-light leading-relaxed text-white/35">
+          <p data-reveal className="mt-4 max-w-sm text-[11px] font-light leading-relaxed text-white/55">
             Eleven grams. Forty-eight hours. Three nanometres.
             <br />The future of wireless audio.
           </p>
 
-          <div className="mt-12 flex w-full items-center justify-between px-8 text-[10px] uppercase tracking-[0.3em] text-white/30 md:px-20">
+          <div className="mt-12 flex w-full items-center justify-between px-8 text-[10px] uppercase tracking-[0.3em] text-white/55 md:px-20">
             <span>Aura Audio © 2026</span>
             <span>Designed in silence</span>
           </div>

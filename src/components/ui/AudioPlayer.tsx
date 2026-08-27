@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX, Play, Pause, Music } from "lucide-react";
+import { Volume2, VolumeX, Play, Pause } from "lucide-react";
+import FloatingAudioVisualizer from "./FloatingAudioVisualizer";
 
 /**
  * Floating audio player.
@@ -293,6 +294,21 @@ export default function AudioPlayer({ enabled = false }: Props) {
               <Play className="h-3.5 w-3.5" fill="currentColor" />
             )}
           </button>
+
+          {/* Live audio visualizer bars */}
+          <div className="hidden sm:block">
+            <FloatingAudioVisualizer active={playing} />
+          </div>
+
+          {/* Track title */}
+          <div className="hidden lg:flex flex-col min-w-0">
+            <span className="text-[8px] uppercase tracking-[0.15em] text-white/35 truncate max-w-[80px]">
+              Now Playing
+            </span>
+            <span className="text-[9px] text-white/65 truncate max-w-[80px]">
+              Let It Happen
+            </span>
+          </div>
 
           {/* Expandable volume control */}
           {expanded && (

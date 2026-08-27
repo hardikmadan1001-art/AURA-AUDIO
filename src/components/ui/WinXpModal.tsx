@@ -315,7 +315,7 @@ export default function WinXpModal({ onDismiss }: Props) {
               >
                 AURA
               </p>
-              <p className="mt-1 text-[10px] tracking-[0.4em] text-white/30">
+              <p className="mt-1 text-[10px] tracking-[0.4em] text-white/55">
                 AUDIO SYSTEMS
               </p>
             </div>

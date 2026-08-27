@@ -62,14 +62,32 @@ const FINISHES: Record<FinishType, FinishPreset> = {
     envMapIntensity: 1.4,
     brandColor: "#c9ccd4",
   },
-  silver: {
-    shellColor: "#b8bcc4",
-    metalness: 0.92,
-    roughness: 0.12,
+  titanium: {
+    shellColor: "#8e9196",
+    metalness: 0.88,
+    roughness: 0.22,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.15,
+    envMapIntensity: 1.5,
+    brandColor: "#d0d3d8",
+  },
+  ceramic: {
+    shellColor: "#e8ecf0",
+    metalness: 0.3,
+    roughness: 0.04,
     clearcoat: 1,
-    clearcoatRoughness: 0.04,
-    envMapIntensity: 1.6,
+    clearcoatRoughness: 0.02,
+    envMapIntensity: 2.0,
     brandColor: "#ffffff",
+  },
+  sapphire: {
+    shellColor: "#3a4a5e",
+    metalness: 0.7,
+    roughness: 0.28,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.12,
+    envMapIntensity: 1.3,
+    brandColor: "#8a9ab0",
   },
 };
 

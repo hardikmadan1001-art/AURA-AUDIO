@@ -11,23 +11,30 @@ import AuraLoader from "@/components/ui/AuraLoader";
 import AudioPlayer from "@/components/ui/AudioPlayer";
 import WinXpModal from "@/components/ui/WinXpModal";
 import FinishSwitcher from "@/components/ui/FinishSwitcher";
+import ChapterScrubber from "@/components/ui/ChapterScrubber";
+import CinemaMode from "@/components/ui/CinemaMode";
+import StickyPreOrderBar from "@/components/ui/StickyPreOrderBar";
+import PreOrderModal from "@/components/ui/PreOrderModal";
+import HUDViewportMode from "@/components/ui/HUDViewportMode";
 
 /**
  * Home — the Aura One interactive film.
  *
  * Layered architecture (back to front):
- *   z-0  WebGL Canvas (the film)
- *   z-1  Ambient noise texture (subtle grain)
- *   z-10 DOM overlay (the screenplay)
- *   z-30 Vignette (CSS)
- *   z-55 Scanlines (CSS)
- *   z-56 Film grain (CSS)
- *   z-57 Light streaks (CSS)
- *   z-60 Letterbox bars (CSS)
- *   z-70 Act wipe line
+ *   z-0   WebGL Canvas (the film)
+ *   z-1   Ambient noise texture (subtle grain)
+ *   z-10  DOM overlay (the screenplay)
+ *   z-30  Vignette (CSS)
+ *   z-40  HUD elements (scrubber, cinema mode, pre-order bar)
+ *   z-55  Scanlines (CSS)
+ *   z-56  Film grain (CSS)
+ *   z-57  Light streaks (CSS)
+ *   z-60  Letterbox bars (CSS)
+ *   z-70  Act wipe line
  *   z-100 Custom cursor
  *   z-200 Loader
  *   z-300 XP Modal
+ *   z-400 Pre-Order Modal
  */
 export default function Home() {
   const [audioReady, setAudioReady] = useState(false);
@@ -66,6 +73,11 @@ export default function Home() {
       <CustomCursor />
       <Hud />
 
+      {/* ---- Navigation & UX ---- */}
+      <ChapterScrubber />
+      <CinemaMode />
+      <HUDViewportMode />
+
       {/* Fixed WebGL stage — the film */}
       <Experience />
 
@@ -76,11 +88,13 @@ export default function Home() {
 
       <ActWipe />
 
+      {/* ---- Commerce ---- */}
+      <StickyPreOrderBar />
+      <FinishSwitcher />
+      <PreOrderModal />
+
       {/* Audio player — post-XP-modal */}
       <AudioPlayer enabled={audioReady} />
-
-      {/* Finish switcher — appears at the final reveal */}
-      <FinishSwitcher />
 
       {/* Retro XP Modal — gates the experience */}
       {!modalDismissed && <WinXpModal onDismiss={handleModalDismiss} />}

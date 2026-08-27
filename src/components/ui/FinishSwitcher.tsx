@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * FinishSwitcher — a sleek floating UI that appears in the final reveal
- * section (Act XIII final scene). It enables the user to toggle between
- * two material finishes on the 3D earbuds:
+ * FinishSwitcher — a sleek floating UI that allows users to toggle between
+ * 4 material finishes on the 3D earbuds:
  *   - DLC Obsidian Black (default)
- *   - Ceramic Gloss Silver
+ *   - Raw Forged 6061 Aluminium (Brushed Titanium/Silver)
+ *   - Ceramic Alabaster (Gloss White)
+ *   - Sapphire Mesh (Micro-perforated acoustic filter)
  *
- * The component communicates the selected finish via a global store
- * that PremiumEarbud reads each frame.
+ * Communicates via finishState global store (consumed by PremiumEarbud).
  */
 
-export type FinishType = "obsidian" | "silver";
+export type FinishType = "obsidian" | "titanium" | "ceramic" | "sapphire";
 
 /* ------------------------------------------------------------------ */
 /* Global finish store — shared mutable, same pattern as scrollState   */
@@ -21,7 +21,6 @@ export type FinishType = "obsidian" | "silver";
 
 export const finishState = {
   current: "obsidian" as FinishType,
-  /** Subscribers register here; called when finish changes. */
   _listeners: new Set<(f: FinishType) => void>(),
   set(f: FinishType) {
     this.current = f;
@@ -34,6 +33,42 @@ export const finishState = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Finish metadata                                                     */
+/* ------------------------------------------------------------------ */
+
+const FINISH_OPTIONS: {
+  key: FinishType;
+  label: string;
+  color: string;
+  gradient: string;
+}[] = [
+  {
+    key: "obsidian",
+    label: "Obsidian DLC",
+    color: "#0b0b0e",
+    gradient: "linear-gradient(135deg, #0b0b0e, #2a2c31)",
+  },
+  {
+    key: "titanium",
+    label: "Raw Titanium",
+    color: "#8e9196",
+    gradient: "linear-gradient(135deg, #7a7d82, #b0b4ba)",
+  },
+  {
+    key: "ceramic",
+    label: "Ceramic Alabaster",
+    color: "#e8ecf0",
+    gradient: "linear-gradient(135deg, #d4d8dc, #f0f2f5)",
+  },
+  {
+    key: "sapphire",
+    label: "Sapphire Mesh",
+    color: "#3a4a5e",
+    gradient: "linear-gradient(135deg, #2a3a50, #5a6a7e)",
+  },
+];
+
+/* ------------------------------------------------------------------ */
 /* Component                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -42,21 +77,19 @@ export default function FinishSwitcher() {
   const [active, setActive] = useState<FinishType>("obsidian");
 
   useEffect(() => {
-    // Listen for finish changes from other sources (e.g., preset buttons)
     const unsub = finishState.subscribe(setActive);
     return () => { unsub(); };
   }, []);
 
   useEffect(() => {
-    // Observe the final scene to show/hide the switcher
     const sceneEl = document.getElementById("scene-final");
     if (!sceneEl) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setVisible(entry.isIntersecting && entry.intersectionRatio > 0.3);
+        setVisible(entry.isIntersecting && entry.intersectionRatio > 0.2);
       },
-      { threshold: [0.3, 0.5, 0.7] }
+      { threshold: [0.2, 0.4, 0.6] }
     );
     observer.observe(sceneEl);
     return () => observer.disconnect();
@@ -77,54 +110,33 @@ export default function FinishSwitcher() {
         animation: "switcherFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards",
       }}
     >
-      <span className="text-[9px] uppercase tracking-[0.4em] text-white/40">
+      <span className="text-[9px] uppercase tracking-[0.4em] text-white/55">
         Material finish
       </span>
 
-      <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/60 p-1 backdrop-blur-xl">
-        <button
-          onClick={() => select("obsidian")}
-          className={`flex items-center gap-2 rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all duration-300 ${
-            active === "obsidian"
-              ? "bg-white/15 text-white shadow-[0_0_12px_rgba(87,230,255,0.15)]"
-              : "text-white/45 hover:text-white/70"
-          }`}
-        >
-          <span
-            className="inline-block h-2.5 w-2.5 rounded-full"
-            style={{
-              background:
-                "linear-gradient(135deg, #0b0b0e, #2a2c31)",
-              boxShadow:
-                active === "obsidian"
-                  ? "0 0 6px rgba(87,230,255,0.4)"
-                  : "none",
-            }}
-          />
-          DLC Obsidian
-        </button>
-
-        <button
-          onClick={() => select("silver")}
-          className={`flex items-center gap-2 rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.25em] transition-all duration-300 ${
-            active === "silver"
-              ? "bg-white/15 text-white shadow-[0_0_12px_rgba(87,230,255,0.15)]"
-              : "text-white/45 hover:text-white/70"
-          }`}
-        >
-          <span
-            className="inline-block h-2.5 w-2.5 rounded-full"
-            style={{
-              background:
-                "linear-gradient(135deg, #c9ccd4, #e8ecf0)",
-              boxShadow:
-                active === "silver"
-                  ? "0 0 6px rgba(87,230,255,0.4)"
-                  : "none",
-            }}
-          />
-          Ceramic Silver
-        </button>
+      <div className="flex items-center gap-1 rounded-full border border-white/15 bg-black/60 p-1 backdrop-blur-xl">
+        {FINISH_OPTIONS.map((opt) => (
+          <button
+            key={opt.key}
+            onClick={() => select(opt.key)}
+            data-hover
+            className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[9px] md:text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
+              active === opt.key
+                ? "bg-white/15 text-white shadow-[0_0_12px_rgba(87,230,255,0.15)]"
+                : "text-white/55 hover:text-white/80"
+            }`}
+          >
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{
+                background: opt.gradient,
+                boxShadow:
+                  active === opt.key ? "0 0 6px rgba(87,230,255,0.4)" : "none",
+              }}
+            />
+            <span className="hidden md:inline">{opt.label}</span>
+          </button>
+        ))}
       </div>
 
       <style>{`

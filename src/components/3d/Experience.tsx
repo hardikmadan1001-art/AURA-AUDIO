@@ -467,6 +467,10 @@ if (typeof window !== "undefined") {
 
 export default function Experience() {
   const dpr = useDynamicDpr();
+  const [isMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
+  });
 
   // One global ScrollTrigger writes progress into the mutable store.
   // Nothing here ever calls setState while scrolling.
@@ -474,7 +478,8 @@ export default function Experience() {
     <div className="fixed inset-0 z-0 pointer-events-none">
       <Canvas
         dpr={dpr}
-        gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
+        frameloop={isMobile ? "demand" : "always"}
+        gl={{ antialias: !isMobile, powerPreference: "high-performance", alpha: false }}
         camera={{ position: [0, 0.15, 10.5], fov: 40 }}
         onCreated={({ gl }) => {
           ScrollTrigger.create({
@@ -484,6 +489,8 @@ export default function Experience() {
             onUpdate: (self) => {
               scrollState.progress = self.progress;
               scrollState.velocity = self.getVelocity();
+              // On-demand: invalidate on scroll for mobile render-on-demand
+              if (isMobile) (gl as any).invalidate?.();
             },
           });
           gl.setClearColor("#000000");
