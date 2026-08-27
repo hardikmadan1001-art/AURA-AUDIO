@@ -6,9 +6,10 @@ import { Volume2, VolumeX, Play, Pause, Music } from "lucide-react";
 /**
  * Floating audio player.
  *
- * - No autoplay (browser policy + UX). The first interaction shows the
- *   "Enable Sound" affordance; until then nothing is loaded.
- * - Preference (enabled / muted / volume) is persisted in localStorage.
+ * - No autoplay (browser policy + UX). The WinXpModal triggers audio
+ *   initialization; this component receives the `enabled` signal and
+ *   starts playback on first available frame.
+ * - Preference (muted / volume) is persisted in localStorage.
  * - Smooth fade in / out via gainRamp when toggling play/mute.
  * - Falls back to native HTMLAudioElement gain when Web Audio is unavailable.
  * - Stays fixed bottom-right, premium-minimal styling.
@@ -18,21 +19,24 @@ const SRC = "/audio/let-it-happen.mp3";
 const STORAGE_KEY = "aura.audio.prefs.v1";
 const FADE_SECONDS = 0.8;
 
+type Props = {
+  /** Set to true by the XP modal after it dismisses and chime plays. */
+  enabled?: boolean;
+};
+
 type PersistedPrefs = {
-  enabled: boolean;
   muted: boolean;
   volume: number; // 0..1
 };
 
 function loadPrefs(): PersistedPrefs {
   if (typeof window === "undefined")
-    return { enabled: false, muted: false, volume: 0.55 };
+    return { muted: false, volume: 0.55 };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { enabled: false, muted: false, volume: 0.55 };
+    if (!raw) return { muted: false, volume: 0.55 };
     const parsed = JSON.parse(raw) as Partial<PersistedPrefs>;
     return {
-      enabled: !!parsed.enabled,
       muted: !!parsed.muted,
       volume:
         typeof parsed.volume === "number" &&
@@ -42,7 +46,7 @@ function loadPrefs(): PersistedPrefs {
           : 0.55,
     };
   } catch {
-    return { enabled: false, muted: false, volume: 0.55 };
+    return { muted: false, volume: 0.55 };
   }
 }
 
@@ -54,18 +58,18 @@ function savePrefs(p: PersistedPrefs) {
   }
 }
 
-export default function AudioPlayer() {
+export default function AudioPlayer({ enabled = false }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const ctxRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
 
-  const [enabled, setEnabled] = useState(false); // user has opted in
-  const [playing, setPlaying] = useState(false); // actually playing
+  const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.55);
   const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const autoStartFired = useRef(false);
 
   /* Track whether Web Audio is available so we can fall back gracefully. */
   const hasWebAudio = useRef(false);
@@ -73,16 +77,15 @@ export default function AudioPlayer() {
   /* Hydrate prefs once on mount */
   useEffect(() => {
     const p = loadPrefs();
-    setEnabled(p.enabled);
     setMuted(p.muted);
     setVolume(p.volume);
   }, []);
 
   /* Persist on any change */
   useEffect(() => {
-    if (!enabled && !playing) return;
-    savePrefs({ enabled, muted, volume });
-  }, [enabled, muted, volume, playing]);
+    if (!enabled) return;
+    savePrefs({ muted, volume });
+  }, [enabled, muted, volume]);
 
   /* Apply native volume as a fallback whenever Web Audio is not handling it. */
   const applyNativeVolume = useCallback(
@@ -113,7 +116,6 @@ export default function AudioPlayer() {
       gainRef.current = gain;
       hasWebAudio.current = true;
     } catch (e) {
-      // Web Audio init failed — we'll use native volume control instead.
       console.warn("[AudioPlayer] Web Audio init failed, using native gain:", e);
       hasWebAudio.current = false;
     }
@@ -177,26 +179,24 @@ export default function AudioPlayer() {
     }
   }, [resume, fadeTo, muted, volume]);
 
-  /** ENTRY POINT — first click. Opts the user in and kicks playback. */
-  const enable = useCallback(async () => {
-    setError(null);
-    setEnabled(true);
-    ensureGraph();
-    await startPlayback();
-  }, [ensureGraph, startPlayback]);
+  /* When the XP modal fires `enabled`, auto-start playback once. */
+  useEffect(() => {
+    if (enabled && !autoStartFired.current) {
+      autoStartFired.current = true;
+      ensureGraph();
+      // Small delay so the Web Audio graph is ready and the chime tail
+      // has faded, then start the ambient track.
+      setTimeout(() => {
+        startPlayback();
+      }, 400);
+    }
+  }, [enabled, ensureGraph, startPlayback]);
 
   /** Play / pause via the toggle. */
   const togglePlay = useCallback(async () => {
     const a = audioRef.current;
     if (!a) return;
 
-    /* First time: the user hasn't opted in yet. */
-    if (!enabled) {
-      return enable();
-    }
-
-    /* Ensure the Web Audio graph is initialised (it may not be if prefs
-       were restored from localStorage on a fresh page load). */
     ensureGraph();
 
     if (playing) {
@@ -222,7 +222,7 @@ export default function AudioPlayer() {
         console.warn("[AudioPlayer] resume failed:", e);
       }
     }
-  }, [enabled, playing, enable, ensureGraph, resume, fadeTo, muted, volume]);
+  }, [playing, ensureGraph, resume, fadeTo, muted, volume]);
 
   const toggleMute = useCallback(() => {
     setMuted((m) => {
@@ -274,19 +274,8 @@ export default function AudioPlayer() {
         onError={() => setError("Track unavailable.")}
       />
 
-      {!enabled ? (
-        /* Compact "Enable Sound" pill — the very first interaction */
-        <button
-          onClick={enable}
-          data-hover
-          className="group fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full border border-white/25 bg-black/60 px-4 py-2.5 text-[10px] uppercase tracking-[0.35em] text-white/80 backdrop-blur-md transition-all hover:border-[#57e6ff]/70 hover:text-[#57e6ff] md:bottom-10 md:right-10"
-          aria-label="Enable background music"
-        >
-          <Music className="h-3.5 w-3.5" />
-          <span>Enable Sound</span>
-        </button>
-      ) : (
-        /* Expanded floating player */
+      {/* Show controls once the XP modal has been dismissed */}
+      {enabled && (
         <div
           role="region"
           aria-label="Background audio player"

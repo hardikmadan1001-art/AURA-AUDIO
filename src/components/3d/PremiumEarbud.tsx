@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import {
@@ -12,6 +12,7 @@ import {
   computeSeparation,
   computeStageRise,
 } from "@/lib/scrollState";
+import { finishState, type FinishType } from "@/components/ui/FinishSwitcher";
 import ChargingCase from "./ChargingCase";
 import {
   Dust,
@@ -34,6 +35,41 @@ import {
   CertificationSeal,
   FinalBloom,
 } from "./Atmospheres";
+
+/* ------------------------------------------------------------------ */
+/* Material presets — shared between all earbud instances               */
+/* ------------------------------------------------------------------ */
+
+type FinishPreset = {
+  shellColor: string;
+  metalness: number;
+  roughness: number;
+  clearcoat: number;
+  clearcoatRoughness: number;
+  envMapIntensity: number;
+  brandColor: string;
+};
+
+const FINISHES: Record<FinishType, FinishPreset> = {
+  obsidian: {
+    shellColor: "#0b0b0e",
+    metalness: 0.85,
+    roughness: 0.16,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
+    envMapIntensity: 1.4,
+    brandColor: "#c9ccd4",
+  },
+  silver: {
+    shellColor: "#b8bcc4",
+    metalness: 0.92,
+    roughness: 0.12,
+    clearcoat: 1,
+    clearcoatRoughness: 0.04,
+    envMapIntensity: 1.6,
+    brandColor: "#ffffff",
+  },
+};
 
 /* ------------------------------------------------------------------ */
 /* ExplodePart — a component with a home position and an escape vector */
@@ -73,40 +109,49 @@ function ExplodePart({
 /* ------------------------------------------------------------------ */
 
 function EarbudModel() {
+  const [finish, setFinish] = useState<FinishType>(finishState.current);
+
+  useEffect(() => {
+    const unsub = finishState.subscribe(setFinish);
+    return () => { unsub(); };
+  }, []);
+
+  const mat = FINISHES[finish];
+
   return (
     <>
       {/* ---------- Outer shells ---------- */}
       <ExplodePart base={[0, 0, 0]} dir={[2.1, 0.28, 0.15]} spin={0.5}>
-        {/* Front shell — gloss black ceramic */}
+        {/* Front shell — the primary material showcase */}
         <mesh rotation={[0, Math.PI / 2, 0]}>
           <sphereGeometry args={[1, 64, 48, 0, Math.PI]} />
           <meshPhysicalMaterial
-            color="#0b0b0e"
-            metalness={0.85}
-            roughness={0.16}
-            clearcoat={1}
-            clearcoatRoughness={0.08}
-            envMapIntensity={1.4}
+            color={mat.shellColor}
+            metalness={mat.metalness}
+            roughness={mat.roughness}
+            clearcoat={mat.clearcoat}
+            clearcoatRoughness={mat.clearcoatRoughness}
+            envMapIntensity={mat.envMapIntensity}
           />
         </mesh>
         {/* Brand ring on the face */}
         <mesh position={[0.985, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
           <torusGeometry args={[0.34, 0.012, 12, 64]} />
-          <meshStandardMaterial color="#c9ccd4" metalness={1} roughness={0.25} />
+          <meshStandardMaterial color={mat.brandColor} metalness={1} roughness={0.25} />
         </mesh>
       </ExplodePart>
 
       <ExplodePart base={[0, 0, 0]} dir={[-2.1, -0.22, -0.1]} spin={0.5}>
-        {/* Rear shell */}
+        {/* Rear shell — same material as front */}
         <mesh rotation={[0, -Math.PI / 2, 0]}>
           <sphereGeometry args={[1, 64, 48, 0, Math.PI]} />
           <meshPhysicalMaterial
-            color="#0b0b0e"
-            metalness={0.85}
-            roughness={0.16}
-            clearcoat={1}
-            clearcoatRoughness={0.08}
-            envMapIntensity={1.4}
+            color={mat.shellColor}
+            metalness={mat.metalness}
+            roughness={mat.roughness}
+            clearcoat={mat.clearcoat}
+            clearcoatRoughness={mat.clearcoatRoughness}
+            envMapIntensity={mat.envMapIntensity}
           />
         </mesh>
         {/* Charging contact disc */}

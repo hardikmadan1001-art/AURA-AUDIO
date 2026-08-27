@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Lightformer, PerspectiveCamera } from "@react-three/drei";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import {
   Bloom,
   EffectComposer,
@@ -19,6 +19,56 @@ import { scrollState, win, T, at } from "@/lib/scrollState";
 const CHROMA_OFFSET = new THREE.Vector2(0.0007, 0.0009);
 const ANIM_LERP = (a: number, b: number, dt: number, rate = 3.5) =>
   a + (b - a) * (1 - Math.exp(-rate * Math.min(dt, 0.05)));
+
+/* ------------------------------------------------------------------ */
+/* Dynamic DPR hook — scales canvas resolution to prevent stutter      */
+/* on mobile GPUs / Safari while keeping desktop buttery.              */
+/* ------------------------------------------------------------------ */
+
+function useDynamicDpr(): [number, number] {
+  const [dpr, setDpr] = useState<[number, number]>(() => {
+    if (typeof window === "undefined") return [1, 1.5];
+    const isMobile = window.innerWidth < 768;
+    const isLowPower =
+      navigator.hardwareConcurrency <= 4 ||
+      /Mobi|Android/i.test(navigator.userAgent);
+    const max = isLowPower ? 1.25 : isMobile ? 1.5 : 1.75;
+    return [1, max];
+  });
+
+  useEffect(() => {
+    let frameId: number;
+    let lastCheck = Date.now();
+    const CHECK_INTERVAL = 5000; // re-evaluate every 5s
+
+    const check = () => {
+      const now = Date.now();
+      if (now - lastCheck < CHECK_INTERVAL) {
+        frameId = requestAnimationFrame(check);
+        return;
+      }
+      lastCheck = now;
+
+      const isMobile = window.innerWidth < 768;
+      const isLowPower =
+        navigator.hardwareConcurrency <= 4 ||
+        /Mobi|Android/i.test(navigator.userAgent);
+      const max = isLowPower ? 1.25 : isMobile ? 1.5 : 1.75;
+
+      setDpr((prev) => {
+        if (prev[1] !== max) return [1, max];
+        return prev;
+      });
+
+      frameId = requestAnimationFrame(check);
+    };
+
+    frameId = requestAnimationFrame(check);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
+  return dpr;
+}
 
 /* ------------------------------------------------------------------ */
 /* Cinematic camera: keyframed dolly, scrubbed by scroll               */
@@ -347,13 +397,8 @@ function StudioEnvironment() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Experience                                                          */
+/* Post-processing — dynamic, mood-aware                               */
 /* ------------------------------------------------------------------ */
-
-// Register once at module load — safe on both server and client.
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 function PostFx() {
   const noiseRef = useRef<any>(null);
@@ -393,13 +438,24 @@ function PostFx() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Experience                                                          */
+/* ------------------------------------------------------------------ */
+
+// Register once at module load — safe on both server and client.
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export default function Experience() {
+  const dpr = useDynamicDpr();
+
   // One global ScrollTrigger writes progress into the mutable store.
   // Nothing here ever calls setState while scrolling.
   return (
     <div className="fixed inset-0 z-0 pointer-events-none">
       <Canvas
-        dpr={[1, typeof window !== "undefined" && window.innerWidth < 768 ? 1.5 : 1.75]}
+        dpr={dpr}
         gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
         camera={{ position: [0, 0.15, 10.5], fov: 40 }}
         onCreated={({ gl }) => {
