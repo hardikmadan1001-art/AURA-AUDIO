@@ -15,10 +15,19 @@ import FinishSwitcher from "@/components/ui/FinishSwitcher";
 /**
  * Home — the Aura One interactive film.
  *
- * The XP modal gates the experience: while it is open, scroll is locked
- * and the 3D stage sits behind a dark veil. Dismissing the modal
- * synthesizes a startup chime, resumes the audio context, and fades
- * into the luxury dark-mode Act I scene.
+ * Layered architecture (back to front):
+ *   z-0  WebGL Canvas (the film)
+ *   z-1  Ambient noise texture (subtle grain)
+ *   z-10 DOM overlay (the screenplay)
+ *   z-30 Vignette (CSS)
+ *   z-55 Scanlines (CSS)
+ *   z-56 Film grain (CSS)
+ *   z-57 Light streaks (CSS)
+ *   z-60 Letterbox bars (CSS)
+ *   z-70 Act wipe line
+ *   z-100 Custom cursor
+ *   z-200 Loader
+ *   z-300 XP Modal
  */
 export default function Home() {
   const [audioReady, setAudioReady] = useState(false);
@@ -26,11 +35,10 @@ export default function Home() {
 
   const handleModalDismiss = useCallback(() => {
     setAudioReady(true);
-    // Short delay so the CRT animation finishes before unlocking scroll
     setTimeout(() => setModalDismissed(true), 100);
   }, []);
 
-  // Unlock scroll once modal is dismissed
+  // Lock scroll while modal is open
   useEffect(() => {
     if (!modalDismissed) {
       document.body.style.overflow = "hidden";
@@ -49,29 +57,32 @@ export default function Home() {
     <main className="bg-black text-white selection:bg-white selection:text-black">
       <AuraLoader />
 
-      {/* Scanlines — the engineering aesthetic, fades once past Act I */}
+      {/* ---- Atmospheric layers ---- */}
       <div className="scanlines" aria-hidden />
+      <div className="film-grain" aria-hidden />
+      <div className="ambient-noise" aria-hidden />
+      <div className="light-streak" aria-hidden />
 
       <CustomCursor />
       <Hud />
 
-      {/* Fixed WebGL stage — the film. Never scrolls itself. */}
+      {/* Fixed WebGL stage — the film */}
       <Experience />
 
-      {/* Scrollable DOM — the screenplay driving the film. */}
+      {/* Scrollable DOM — the screenplay */}
       <SmoothScroll>
         <CinematicOverlay />
       </SmoothScroll>
 
       <ActWipe />
 
-      {/* Audio player — always present, handles enable/toggle/mute */}
+      {/* Audio player — post-XP-modal */}
       <AudioPlayer enabled={audioReady} />
 
-      {/* Finish switcher — appears at the final reveal section */}
+      {/* Finish switcher — appears at the final reveal */}
       <FinishSwitcher />
 
-      {/* Retro XP Modal — the competition centrepiece */}
+      {/* Retro XP Modal — gates the experience */}
       {!modalDismissed && <WinXpModal onDismiss={handleModalDismiss} />}
     </main>
   );

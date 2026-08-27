@@ -47,10 +47,12 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     <ReactLenis
       root
       options={{
-        lerp: 0.09,
+        lerp: 0.08,
         smoothWheel: true,
-        wheelMultiplier: 0.95,
-        touchMultiplier: 1.4,
+        wheelMultiplier: 0.92,
+        touchMultiplier: 1.3,
+        duration: 1.4,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       }}
     >
       {children}

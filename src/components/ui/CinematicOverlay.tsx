@@ -23,12 +23,18 @@ function Caption({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* Split a headline into individually animatable characters. */
-function Chars({ text }: { text: string }) {
+/* Split a headline into individually animatable characters with
+ * perspective depth and stagger timing. */
+function Chars({ text, className = "" }: { text: string; className?: string }) {
   return (
     <>
       {text.split("").map((c, i) => (
-        <span key={i} data-char className="inline-block will-change-transform">
+        <span
+          key={i}
+          data-char
+          className={`inline-block will-change-transform ${className}`}
+          style={{ transformOrigin: "center bottom" }}
+        >
           {c === " " ? "\u00A0" : c}
         </span>
       ))}
@@ -36,7 +42,7 @@ function Chars({ text }: { text: string }) {
   );
 }
 
-/** Massive background word with slow parallax drift. */
+/** Massive background word with slow parallax drift + blur fade. */
 function GiantWord({
   text,
   className = "",
@@ -53,7 +59,12 @@ function GiantWord({
       data-giant
       aria-hidden
       className={`pointer-events-none absolute whitespace-nowrap font-display font-black uppercase leading-none tracking-tighter ${className}`}
-      style={{ WebkitTextStroke: `1px ${stroke}`, color: "transparent", opacity }}
+      style={{
+        WebkitTextStroke: `1px ${stroke}`,
+        color: "transparent",
+        opacity,
+        filter: `blur(${Math.max(0, opacity * 8)}px)`,
+      }}
     >
       {text}
     </div>
@@ -1241,10 +1252,43 @@ export default function CinematicOverlay() {
         <TechLabel n="FRQ" className="bottom-[24%] left-[10%]">20 Hz – 20 kHz</TechLabel>
         <TechLabel n="REV" className="bottom-[28%] right-[9%]">Prototype 1100</TechLabel>
         <ActMark act={1} />
+
+        {/* Floating ambient particles — "sound becoming visible" */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <span
+              key={i}
+              className="absolute rounded-full bg-[#57e6ff]/20"
+              style={{
+                width: `${2 + (i % 4)}px`,
+                height: `${2 + (i % 4)}px`,
+                left: `${5 + (i * 4.7) % 90}%`,
+                top: `${10 + (i * 7.3) % 80}%`,
+                animation: `floatSlow ${6 + (i % 5) * 2}s ease-in-out infinite`,
+                animationDelay: `${i * 0.3}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Ambient glow orb */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[60vh] w-[60vh] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(87,230,255,0.06) 0%, transparent 70%)",
+            animation: "breathe 8s ease-in-out infinite",
+          }}
+        />
+
         <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
           <div className="relative">
             <Halo />
-            <p data-intro-sub className="mb-8 text-[11px] uppercase tracking-[0.55em] text-white/55">
+            <p
+              data-intro-sub
+              className="mb-8 text-[11px] uppercase tracking-[0.55em] text-white/55"
+              style={{ animation: "fadeSlideUp 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.4s both" }}
+            >
               Aura · Reference Series
             </p>
             <h1
@@ -1255,12 +1299,18 @@ export default function CinematicOverlay() {
               <span className="block overflow-hidden pb-2 text-white/45"><Chars text="Invisible." /></span>
             </h1>
           </div>
-          <p className="mx-auto mt-10 max-w-md text-sm font-light leading-relaxed text-white/55">
+          <p
+            className="mx-auto mt-10 max-w-md text-sm font-light leading-relaxed text-white/55"
+            style={{ animation: "fadeSlideUp 1s cubic-bezier(0.23, 1, 0.32, 1) 1.8s both" }}
+          >
             Before there was a product, there was a question:
             <br />
             what does silence look like when it listens back?
           </p>
-          <div className="mt-16 flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] text-white/30">
+          <div
+            className="mt-16 flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] text-white/30"
+            style={{ animation: "fadeSlideUp 1s cubic-bezier(0.23, 1, 0.32, 1) 2.4s both" }}
+          >
             <span className="h-px w-10 bg-white/30" />
             Scroll to listen
             <span className="h-px w-10 bg-white/30" />
@@ -2602,8 +2652,61 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
         <GiantWord text="Forever" className="inset-x-0 top-[14%] text-center text-[15vw]" opacity={0.03} />
         <CornerFrame />
         <TechLabel n="EOF" className="left-[8%] top-[26%]">End of transmission</TechLabel>
+
+        {/* Cinematic sound wave rings expanding outward */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full border border-[#57e6ff]/10"
+              style={{
+                width: `${30 + i * 15}vmin`,
+                height: `${30 + i * 15}vmin`,
+                animation: `breathe ${4 + i * 0.5}s ease-in-out infinite`,
+                animationDelay: `${i * 0.6}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Floating particles converging toward center */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          {Array.from({ length: 30 }).map((_, i) => {
+            const angle = (i / 30) * Math.PI * 2;
+            const dist = 20 + (i % 5) * 8;
+            return (
+              <span
+                key={i}
+                className="absolute rounded-full bg-[#57e6ff]/30"
+                style={{
+                  width: `${1 + (i % 3)}px`,
+                  height: `${1 + (i % 3)}px`,
+                  left: `${50 + Math.cos(angle) * dist}%`,
+                  top: `${50 + Math.sin(angle) * dist}%`,
+                  animation: `floatSlow ${5 + (i % 4) * 2}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.15}s`,
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {/* Ambient glow orb — the product breathes */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[50vh] w-[50vh] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(87,230,255,0.08) 0%, transparent 60%)",
+            animation: "breathe 6s ease-in-out infinite",
+          }}
+        />
+
         <div data-content className="sticky top-0 flex h-screen flex-col items-center justify-center gap-6 px-6 text-center">
-          <p data-reveal className="mb-4 text-[11px] uppercase tracking-[0.5em] text-white/45">
+          <p
+            data-reveal
+            className="mb-4 text-[11px] uppercase tracking-[0.5em] text-white/45"
+            style={{ animation: "fadeSlideUp 1s cubic-bezier(0.23, 1, 0.32, 1) 0.2s both" }}
+          >
             The future of listening ships spring 2027
           </p>
           <div className="relative">
@@ -2613,15 +2716,34 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
               <span
                 data-reveal
                 className="block"
-                style={{ color: "rgba(87,230,255,0.85)", textShadow: "0 0 60px rgba(87,230,255,0.35)" }}
+                style={{
+                  color: "rgba(87,230,255,0.85)",
+                  textShadow: "0 0 60px rgba(87,230,255,0.35), 0 0 120px rgba(87,230,255,0.15)",
+                }}
               >
                 Everything.
               </span>
             </h2>
           </div>
+
+          {/* Spec row — the final specs the user sees */}
+          <div data-reveal className="mt-4 flex flex-wrap items-center justify-center gap-6">
+            {[
+              { k: "11 g", l: "per bud" },
+              { k: "48 h", l: "battery" },
+              { k: "−48 dB", l: "ANC" },
+              { k: "3 nm", l: "silicon" },
+            ].map((s) => (
+              <div key={s.k} className="text-center">
+                <p className="font-display text-lg font-bold tracking-tight" style={{ color: "rgba(87,230,255,0.9)" }}>{s.k}</p>
+                <p className="text-[8px] uppercase tracking-[0.3em] text-white/30">{s.l}</p>
+              </div>
+            ))}
+          </div>
+
           <p
             data-reveal
-            className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#ffb45e]/40 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.35em] text-[#ffb45e]/90"
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#ffb45e]/40 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.35em] text-[#ffb45e]/90"
           >
             Limited to first 1000
           </p>
@@ -2629,16 +2751,22 @@ n              reproduces these faithfully, from the warm 2nd harmonic to the
             data-cta
             data-hover
             onClick={() => {
-              // Placeholder — wire to a real checkout URL when ready
               // eslint-disable-next-line no-console
               console.log("[AURA] pre-order clicked");
             }}
-            className="cta-glow mt-6 inline-flex items-center gap-3 rounded-full bg-white px-12 py-5 text-sm font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:scale-[1.03] hover:bg-[#57e6ff]"
+            className="cta-glow btn-glow mt-6 inline-flex items-center gap-3 rounded-full bg-white px-12 py-5 text-sm font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:scale-[1.03] hover:bg-[#57e6ff]"
           >
             <span>Pre-Order</span>
             <span className="font-mono">$349</span>
             <span aria-hidden>→</span>
           </button>
+
+          {/* Final line — the closing statement */}
+          <p data-reveal className="mt-4 max-w-sm text-[11px] font-light leading-relaxed text-white/35">
+            Eleven grams. Forty-eight hours. Three nanometres.
+            <br />The future of wireless audio.
+          </p>
+
           <div className="mt-12 flex w-full items-center justify-between px-8 text-[10px] uppercase tracking-[0.3em] text-white/30 md:px-20">
             <span>Aura Audio © 2026</span>
             <span>Designed in silence</span>

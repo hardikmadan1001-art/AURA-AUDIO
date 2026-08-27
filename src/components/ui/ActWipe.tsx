@@ -6,63 +6,122 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ACTS } from "@/lib/story";
 
 /**
- * One-shot vertical cyan wipe at the moment each act begins. Reads as
- * "cut to next scene" — light film grammar.
+ * ActWipe — cinematic vertical wipe at every act boundary.
+ *
+ * The wipe is now dual-line: a leading cyan line with a trailing
+ * glow, creating a "cut to next scene" film grammar feel.
+ * Easing is cubic-bezier for smooth, organic motion.
  */
 export default function ActWipe() {
   const ref = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const el = ref.current;
+    const glow = glowRef.current;
     if (!el) return;
 
     const ctx = gsap.context(() => {
-      // Trigger at every act boundary (the start of the first scene of each act).
-      const actStarts = ACTS.slice(0, -1).map((_, i) => {
-        const firstSceneOfAct = [
-          "overture",
-          "approach",
-          "glimpse",
-          "hero",
-          "engineering",
-          "cell",
-          "spatial",
-          "family",
-          "reassembly",
-        ][i];
-        const sceneEl = document.getElementById(`scene-${firstSceneOfAct}`);
-        return sceneEl ? ScrollTrigger.create({
+      // Scene IDs where act transitions happen (first scene of each act)
+      const actTransitions = [
+        "approach",   // Act III
+        "glimpse",    // Act V
+        "hero",       // Act VI
+        "engineering",// Act VII
+        "cell",       // Act VIII
+        "resonance",  // Act IX
+        "spatial",    // Act X
+        "family",     // Act XI
+        "assembly",   // Act XII
+        "reassembly", // Act XIII
+      ];
+
+      const triggers = actTransitions.map((sceneId) => {
+        const sceneEl = document.getElementById(`scene-${sceneId}`);
+        if (!sceneEl) return null;
+
+        return ScrollTrigger.create({
           trigger: sceneEl,
-          start: "top 80%",
+          start: "top 75%",
           once: true,
           onEnter: () => {
-            gsap.fromTo(
+            // Main line wipe — sweep down
+            const tl = gsap.timeline();
+
+            tl.fromTo(
               el,
-              { scaleY: 0 },
+              { scaleY: 0, opacity: 0 },
               {
                 scaleY: 1,
-                duration: 0.18,
-                ease: "power3.in",
-                onComplete: () => {
-                  gsap.to(el, {
-                    scaleY: 0,
-                    transformOrigin: "bottom",
-                    duration: 0.22,
-                    ease: "power3.out",
-                    delay: 0.05,
-                  });
-                },
+                opacity: 1,
+                duration: 0.2,
+                ease: "power2.in",
               }
             );
+
+            // Glow follows slightly behind
+            if (glow) {
+              tl.fromTo(
+                glow,
+                { scaleY: 0, opacity: 0 },
+                {
+                  scaleY: 1,
+                  opacity: 0.6,
+                  duration: 0.25,
+                  ease: "power2.in",
+                },
+                0.02
+              );
+            }
+
+            // Wipe out from bottom
+            tl.to(el, {
+              scaleY: 0,
+              transformOrigin: "bottom",
+              opacity: 0,
+              duration: 0.3,
+              ease: "power3.out",
+              delay: 0.05,
+            });
+
+            if (glow) {
+              tl.to(glow, {
+                scaleY: 0,
+                transformOrigin: "bottom",
+                opacity: 0,
+                duration: 0.35,
+                ease: "power3.out",
+              }, "<0.03");
+            }
           },
-        }) : null;
-      }).filter(Boolean);
-      return () => actStarts.forEach((t) => t?.kill());
+        });
+      });
+
+      return () => triggers.forEach((t) => t?.kill());
     });
 
     return () => ctx.revert();
   }, []);
 
-  return <div ref={ref} aria-hidden className="act-wipe" />;
+  return (
+    <>
+      {/* Main wipe line */}
+      <div ref={ref} aria-hidden className="act-wipe" />
+      {/* Glow trail — wider, softer, follows the line */}
+      <div
+        ref={glowRef}
+        aria-hidden
+        className="fixed top-0 bottom-0 left-0 z-[69] pointer-events-none"
+        style={{
+          width: "6px",
+          background:
+            "linear-gradient(to bottom, transparent, rgba(87, 230, 255, 0.3) 30%, rgba(87, 230, 255, 0.3) 70%, transparent)",
+          boxShadow: "0 0 24px rgba(87, 230, 255, 0.4), 0 0 60px rgba(87, 230, 255, 0.15)",
+          transform: "scaleY(0)",
+          transformOrigin: "top",
+        }}
+      />
+    </>
+  );
 }
