@@ -11,6 +11,8 @@ import {
   computeBudLift,
   computeSeparation,
   computeStageRise,
+  computeProductVisibility,
+  computeMysteryIntensity,
 } from "@/lib/scrollState";
 import { finishState, type FinishType } from "@/components/ui/FinishSwitcher";
 import ChargingCase from "./ChargingCase";
@@ -375,13 +377,30 @@ export default function PremiumEarbud() {
   useFrame(({ clock }) => {
     const p = scrollState.progress;
     scrollState.explode = computeExplode(p);
+    scrollState.productVisibility = computeProductVisibility(p);
+    scrollState.mysteryIntensity = computeMysteryIntensity(p);
 
     const g = root.current;
     if (!g) return;
 
-    // ACT II — the vessel ascends out of the void below.
+    // Product stays hidden through mystery acts (visibility = 0)
+    const vis = scrollState.productVisibility;
+    g.visible = vis > 0.01;
+    if (!g.visible) return;
+
+    // Smooth fade-in at reveal
+    g.traverse((child) => {
+      if ((child as THREE.Mesh).material) {
+        const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+        if (mat.opacity !== undefined) {
+          // Don't override materials that manage their own opacity
+        }
+      }
+    });
+
+    // Case emergence from the void below.
     const emerged = computeStageRise(p);
-    // ACT III aftermath — the composition settles once free of the case.
+    // After separation — the composition settles.
     const sink = win(p, T.separation.start, T.separation.end) * 0.5;
 
     g.position.y = -6.5 * (1 - emerged) - sink;

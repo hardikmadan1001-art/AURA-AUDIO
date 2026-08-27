@@ -5,8 +5,10 @@
  * directly inside useFrame loops on the GPU-side components.
  * Deliberately NOT React state — pumping this through setState would
  * re-render the whole tree 60x/sec and destroy the frame budget.
+ *
+ * REWRITTEN: 5 mystery acts (no product) → product reveal → finale
  */
-import { sceneWindow } from "./story";
+import { sceneWindow, REVEAL_PROGRESS } from "./story";
 
 export const scrollState = {
   /** Global page progress, 0 -> 1 */
@@ -17,6 +19,10 @@ export const scrollState = {
   explode: 0,
   /** Charging case lid: 0 (closed) -> 1 (fully open) */
   caseOpen: 0,
+  /** Product visibility: 0 (hidden) -> 1 (fully visible). Stays 0 through mystery acts. */
+  productVisibility: 0,
+  /** Mystery scene intensity: 1 during acts I–V, fades to 0 at reveal. */
+  mysteryIntensity: 0,
 };
 
 /* ------------------------------------------------------------------ */
@@ -26,73 +32,90 @@ export const scrollState = {
 const W = sceneWindow;
 
 export const T = {
-  /* ACT I — The Question */
-  overture: W("overture"),
-  manifesto: W("manifesto"),
-  signal: W("signal"),
-  frequencies: W("frequencies"),
+  /* ACT I — The Silence Before Sound */
+  silence: W("silence"),
+  wavescape: W("wavescape"),
+  sonicform: W("sonicform"),
 
-  /* ACT II — Genesis */
-  origin: W("origin"),
-  philosophy: W("philosophy"),
-  obsession: W("obsession"),
+  /* ACT II — A Thousand Failures */
+  graveyard: W("graveyard"),
+  fragments: W("fragments"),
+  ruins: W("ruins"),
 
-  /* ACT III — The Vessel (stages 1–3 of the reveal) */
-  approach: W("approach"),
+  /* ACT III — Inside the Sound */
+  tunnel: W("tunnel"),
+  frequency: W("frequency"),
+  resonance_chamber: W("resonance_chamber"),
+
+  /* ACT IV — 1100 Iterations */
+  iterations: W("iterations"),
+  convergence: W("convergence"),
+  singular: W("singular"),
+
+  /* ACT V — The Discovery */
+  monolith: W("monolith"),
+  awakening: W("awakening"),
+
+  /* ════════════ PRODUCT REVEAL ════════════ */
+
+  /* ACT VI — The Vessel */
+  emergence: W("emergence"),
   orbit: W("orbit"),
   material: W("material"),
   craft: W("craft"),
 
-  /* ACT IV — Material World */
-  graphene: W("graphene"),
-  ceramic: W("ceramic"),
-  aluminium: W("aluminium"),
-
-  /* ACT V — Emergence (stages 4–8 of the reveal) */
+  /* ACT VII — Emergence */
   glimpse: W("glimpse"),
   firstlight: W("firstlight"),
   rise: W("rise"),
   separation: W("separation"),
 
-  /* ACT VI — Acoustic Architecture */
+  /* ACT VIII — Acoustic Architecture */
   hero: W("hero"),
   waves: W("waves"),
   driver: W("driver"),
   interlude: W("interlude"),
 
-  /* ACT VII — Internal Components */
+  /* ACT IX — Internal Components */
   engineering: W("engineering"),
   explosion: W("explosion"),
   shell: W("shell"),
   processor: W("processor"),
 
-  /* ACT VIII — Sound Engineering */
+  /* ACT X — Sound Engineering */
   cell: W("cell"),
   anc: W("anc"),
   power: W("power"),
   connect: W("connect"),
 
-  /* ACT IX — Resonance */
+  /* ACT XI — Resonance */
   resonance: W("resonance"),
   harmonics: W("harmonics"),
   overtones: W("overtones"),
 
-  /* ACT X — Experience */
+  /* ACT XII — Future of Listening */
+  reassembly: W("reassembly"),
+  final: W("final"),
+
+  /* ──── Backward-compat aliases for existing atmospheric systems ──── */
+  overture: W("overture"),
+  manifesto: W("manifesto"),
+  signal: W("signal"),
+  frequencies: W("frequencies"),
+  origin: W("origin"),
+  philosophy: W("philosophy"),
+  obsession: W("obsession"),
+  approach: W("approach"),
+  graphene: W("graphene"),
+  ceramic: W("ceramic"),
+  aluminium: W("aluminium"),
   spatial: W("spatial"),
   touch: W("touch"),
-
-  /* ACT XI — Ecosystem */
   family: W("family"),
   versus: W("versus"),
-
-  /* ACT XII — Precision Assembly */
   assembly: W("assembly"),
   calibration: W("calibration"),
   certification: W("certification"),
-
-  /* ACT XIII — Future of Listening */
-  reassembly: W("reassembly"),
-  final: W("final"),
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -124,23 +147,37 @@ export const at = (w: { start: number; end: number }, f: number) =>
   w.start + (w.end - w.start) * f;
 
 /* ------------------------------------------------------------------ */
-/* Choreography                                                        */
+/* Product visibility — hidden through mystery acts, revealed at ACT VI */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Product visibility: 0 throughout mystery acts, fades to 1
+ * during the EMERGENCE scene (ACT VI), then stays 1.
+ */
+export function computeProductVisibility(p: number): number {
+  return easeInOut(win(p, at(T.emergence, 0.05), at(T.emergence, 0.5)));
+}
+
+/**
+ * Mystery intensity: 1 through ACT I–V, fades out during ACT VI emergence.
+ */
+export function computeMysteryIntensity(p: number): number {
+  return 1 - easeInOut(win(p, at(T.emergence, 0.0), at(T.emergence, 0.6)));
+}
+
+/* ------------------------------------------------------------------ */
+/* Product Choreography — same logic, new timeline positions           */
 /* ------------------------------------------------------------------ */
 
 /**
  * STAGE 1–2 — Case emergence from the void below.
- * The vessel ascends into the key light across most of APPROACH while
- * the camera is still travelling toward it.
  */
 export function computeStageRise(p: number): number {
-  return easeInOut(win(p, at(T.approach, 0.02), at(T.approach, 0.72)));
+  return easeInOut(win(p, at(T.emergence, 0.02), at(T.emergence, 0.72)));
 }
 
 /**
- * STAGE 4–5 — Lid choreography:
- *   GLIMPSE 8%→45%   slow crack — a sliver of light escapes
- *   GLIMPSE → FIRST LIGHT 55%   HOLD THE SLIVER. Anticipation.
- *   rest of FIRST LIGHT   full open, unhurried
+ * STAGE 4–5 — Lid choreography.
  */
 const SLIVER = 0.18;
 
@@ -157,16 +194,12 @@ export function computeCaseOpen(p: number): number {
 
 /**
  * STAGE 6 — Earbuds rise INDIVIDUALLY.
- * The left bud lifts first; the right follows on its own beat,
- * overlapping but never synchronised.
  */
 export function computeBudLift(p: number, side: 1 | -1): number {
   const r = T.rise;
   if (side === -1) {
-    // First off the pad.
     return easeInOut(win(p, r.start, at(r, 0.62)));
   }
-  // Second, slower, more reluctant — a different personality.
   return easeInOut(win(p, at(r, 0.38), r.end));
 }
 
@@ -179,8 +212,7 @@ export function computeSeparation(p: number): number {
 }
 
 /**
- * STAGE 8 — Hero reveal is a camera + light event (see Experience),
- * not a transform on the buds themselves.
+ * STAGE 8 — Hero reveal is a camera + light event.
  */
 
 /** Explosion timeline — deliberately late. */
