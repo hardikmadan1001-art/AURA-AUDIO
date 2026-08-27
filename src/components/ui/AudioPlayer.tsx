@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX, Play, Pause } from "lucide-react";
 import FloatingAudioVisualizer from "./FloatingAudioVisualizer";
+import { connectAudioAnalyser } from "@/hooks/useAudioAnalyser";
 
 /**
  * Floating audio player.
@@ -189,6 +190,8 @@ export default function AudioPlayer({ enabled = false }: Props) {
       // has faded, then start the ambient track.
       setTimeout(() => {
         startPlayback();
+        // Connect the analyser for 3D audio reactivity
+        setTimeout(connectAudioAnalyser, 600);
       }, 400);
     }
   }, [enabled, ensureGraph, startPlayback]);

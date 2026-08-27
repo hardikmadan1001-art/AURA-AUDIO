@@ -2,62 +2,65 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
+import { finishState, type FinishType } from "./FinishSwitcher";
 
 /**
- * StickyPreOrderBar — persistent glassmorphic bottom pill that fades in
- * when the user scrolls past the hero section.
+ * StickyPreOrderBar — persistent glassmorphic bottom pill.
  *
- * Contains:
- * - Product name + price
- * - Finish indicator (reads from finishState)
- * - "Reserve Now" CTA
+ * Shows when scrolling between Act II and Act XI (product visible).
+ * Hidden during mystery acts (I-V) and finale (XII).
+ * Displays dynamic finish badge from finishState.
  */
+
+const FINISH_BADGES: Record<FinishType, { label: string; color: string }> = {
+  obsidian: { label: "Obsidian DLC", color: "#0b0b0e" },
+  titanium: { label: "Raw Titanium", color: "#8e9196" },
+  ceramic: { label: "Ceramic Alabaster", color: "#e8ecf0" },
+  sapphire: { label: "Sapphire Mesh", color: "#3a4a5e" },
+};
 
 export default function StickyPreOrderBar() {
   const [visible, setVisible] = useState(false);
+  const [finish, setFinish] = useState<FinishType>(finishState.current);
   const [opacity, setOpacity] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
+
   const onReserve = useCallback(() => {
-    // Dispatch a custom event that PreOrderModal listens for
     window.dispatchEvent(new CustomEvent("aura:open-preorder"));
   }, []);
 
+  // Track finish state
   useEffect(() => {
-    // Show after scrolling past ~80% of the first act
-    const trigger = ScrollTrigger.create({
-      trigger: document.documentElement,
-      start: "15% top",
-      end: "85% top",
-      onEnter: () => setVisible(true),
-      onLeaveBack: () => setVisible(false),
-    });
-
-    return () => trigger.kill();
+    const unsub = finishState.subscribe(setFinish);
+    return () => { unsub(); };
   }, []);
 
+  // Show/hide based on scroll position
   useEffect(() => {
-    if (visible) {
-      gsap.to({ val: opacity }, {
-        val: 1,
-        duration: 0.6,
-        ease: "power2.out",
-        onUpdate: function () {
-          setOpacity(this.targets()[0].val);
-        },
-      });
-    } else {
-      gsap.to({ val: opacity }, {
-        val: 0,
-        duration: 0.4,
-        ease: "power2.in",
-        onUpdate: function () {
-          setOpacity(this.targets()[0].val);
-        },
-      });
-    }
+    const checkScroll = () => {
+      const p = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      // Show between ~8% (after mystery acts) and ~92% (before finale)
+      setVisible(p > 0.08 && p < 0.92);
+    };
+    window.addEventListener("scroll", checkScroll, { passive: true });
+    checkScroll();
+    return () => window.removeEventListener("scroll", checkScroll);
+  }, []);
+
+  // Animate opacity
+  useEffect(() => {
+    gsap.to({ val: opacity }, {
+      val: visible ? 1 : 0,
+      duration: visible ? 0.6 : 0.4,
+      ease: visible ? "power2.out" : "power2.in",
+      onUpdate: function () {
+        setOpacity(this.targets()[0].val);
+      },
+    });
   }, [visible]);
+
+  const badge = FINISH_BADGES[finish];
 
   return (
     <div
@@ -76,7 +79,7 @@ export default function StickyPreOrderBar() {
           </span>
           <span className="hidden md:inline text-white/30">·</span>
           <span className="hidden md:inline text-[10px] uppercase tracking-[0.25em] text-white/55">
-            Reference Series
+            Spring 2027
           </span>
         </div>
 
@@ -86,10 +89,15 @@ export default function StickyPreOrderBar() {
         {/* Price */}
         <span className="font-mono text-sm md:text-base text-white/80">$349</span>
 
-        {/* Finish badge */}
-        <div className="hidden md:flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#0b0b0e] ring-1 ring-white/20" />
-          <span className="text-[9px] uppercase tracking-[0.2em] text-white/55">Obsidian DLC</span>
+        {/* Finish badge — dynamic */}
+        <div className="hidden md:flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 transition-all duration-500">
+          <span
+            className="inline-block h-1.5 w-1.5 rounded-full ring-1 ring-white/20 transition-colors duration-500"
+            style={{ backgroundColor: badge.color }}
+          />
+          <span className="text-[9px] uppercase tracking-[0.2em] text-white/55 transition-colors duration-500">
+            {badge.label}
+          </span>
         </div>
 
         {/* Divider */}

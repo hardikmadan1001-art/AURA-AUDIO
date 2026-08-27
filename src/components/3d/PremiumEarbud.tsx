@@ -15,6 +15,7 @@ import {
   computeMysteryIntensity,
 } from "@/lib/scrollState";
 import { finishState, type FinishType } from "@/components/ui/FinishSwitcher";
+import { viewportModeState, type ViewportMode } from "@/components/ui/HUDViewportMode";
 import ChargingCase from "./ChargingCase";
 import {
   Dust,
@@ -130,13 +131,46 @@ function ExplodePart({
 
 function EarbudModel() {
   const [finish, setFinish] = useState<FinishType>(finishState.current);
+  const [viewportMode, setViewportMode] = useState<ViewportMode>(viewportModeState.current);
+  const frontShellRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const rearShellRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
   useEffect(() => {
-    const unsub = finishState.subscribe(setFinish);
-    return () => { unsub(); };
+    const unsubF = finishState.subscribe(setFinish);
+    const unsubV = viewportModeState.subscribe(setViewportMode);
+    return () => { unsubF(); unsubV(); };
   }, []);
 
   const mat = FINISHES[finish];
+
+  // Ghost Shell + Viewport Mode: dynamic material updates per frame
+  useFrame(({ clock }) => {
+    const e = scrollState.explode;
+    // Opacity: 1 (solid) → 0.15 (frosted ghost) at peak explosion
+    const ghostOpacity = 1 - e * 0.85;
+    // Roughness increases during ghost mode for frosted glass feel
+    const ghostRoughness = mat.roughness + e * 0.35;
+
+    // Viewport mode: wireframe, thermal, or studio
+    const isWireframe = viewportMode === "wireframe";
+    const isThermal = viewportMode === "thermal";
+
+    // Thermal map color: interpolate cyan → violet → amber based on roughness
+    const thermalColor = isThermal
+      ? new THREE.Color().setHSL(0.55 - mat.roughness * 0.8, 0.9, 0.5)
+      : new THREE.Color(mat.shellColor);
+
+    [frontShellRef, rearShellRef].forEach((ref) => {
+      const m = ref.current;
+      if (!m) return;
+      m.opacity = isWireframe ? 0.3 : ghostOpacity;
+      m.roughness = isWireframe ? 0.5 : ghostRoughness;
+      m.wireframe = isWireframe;
+      m.color.copy(thermalColor);
+      m.emissive.set(isThermal ? thermalColor : "#000000");
+      m.emissiveIntensity = isThermal ? 0.2 + Math.sin(clock.elapsedTime * 2) * 0.1 : 0;
+    });
+  });
 
   return (
     <>
@@ -146,12 +180,15 @@ function EarbudModel() {
         <mesh rotation={[0, Math.PI / 2, 0]}>
           <sphereGeometry args={[1, 64, 48, 0, Math.PI]} />
           <meshPhysicalMaterial
+            ref={frontShellRef}
             color={mat.shellColor}
             metalness={mat.metalness}
             roughness={mat.roughness}
             clearcoat={mat.clearcoat}
             clearcoatRoughness={mat.clearcoatRoughness}
             envMapIntensity={mat.envMapIntensity}
+            transparent
+            opacity={1}
           />
         </mesh>
         {/* Brand ring on the face */}
@@ -166,12 +203,15 @@ function EarbudModel() {
         <mesh rotation={[0, -Math.PI / 2, 0]}>
           <sphereGeometry args={[1, 64, 48, 0, Math.PI]} />
           <meshPhysicalMaterial
+            ref={rearShellRef}
             color={mat.shellColor}
             metalness={mat.metalness}
             roughness={mat.roughness}
             clearcoat={mat.clearcoat}
             clearcoatRoughness={mat.clearcoatRoughness}
             envMapIntensity={mat.envMapIntensity}
+            transparent
+            opacity={1}
           />
         </mesh>
         {/* Charging contact disc */}

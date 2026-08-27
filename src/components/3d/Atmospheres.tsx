@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
 import * as THREE from "three";
 import { scrollState, win, T } from "@/lib/scrollState";
+import { audioData } from "@/hooks/useAudioAnalyser";
 
 /**
  * Atmospheric systems — every act has its own weather.
@@ -134,10 +135,11 @@ export function WaveLines() {
     const presence = actOne + wavesEcho + overtonesGhost;
     if (group.current) group.current.visible = presence > 0.01;
 
-    // Smoothed scroll velocity -> amplitude.
+    // Smoothed scroll velocity + live audio bass -> amplitude.
     const targetVel = Math.min(Math.abs(scrollState.velocity) / 2200, 1);
     vel.current += (targetVel - vel.current) * Math.min(1, dt * 4);
-    const amp = 0.14 + vel.current * 0.55 + Math.sin(clock.elapsedTime * 0.9) * 0.02;
+    const bassBoost = audioData.bass * 0.35;
+    const amp = 0.14 + vel.current * 0.55 + bassBoost + Math.sin(clock.elapsedTime * 0.9) * 0.02;
 
     geos.forEach((geo, li) => {
       const attr = geo.getAttribute("position") as THREE.BufferAttribute | undefined;
@@ -183,9 +185,10 @@ export function SoundWaves() {
       win(p, T.waves.start, at(T.waves, 0.15)) *
       (1 - win(p, at(T.interlude, 0.6), T.interlude.end));
     const t = clock.elapsedTime;
+    const audioBoost = 1 + audioData.mid * 0.6;
     group.current?.children.forEach((child, i) => {
       const phase = (t * 0.45 + i / 3) % 1;
-      child.scale.setScalar(0.35 + phase * 2.1);
+      child.scale.setScalar((0.35 + phase * 2.1) * audioBoost);
       const m = mats.current[i];
       if (m) m.opacity = visibility * (1 - phase) * 0.85;
     });
@@ -241,14 +244,15 @@ export function NoiseField() {
     const active =
       win(p, at(T.anc, 0.1), at(T.anc, 0.3)) *
       (1 - win(p, at(T.anc, 0.72), T.anc.end));
-    if (matRef.current) matRef.current.opacity = active * 0.7;
+    const trebleChaos = 1 + audioData.treble * 1.2;
+    if (matRef.current) matRef.current.opacity = active * 0.7 * trebleChaos;
     const geo = ref.current?.geometry as THREE.BufferGeometry | undefined;
     const attr = geo?.getAttribute("position") as THREE.BufferAttribute | undefined;
     if (!attr || active <= 0) return;
 
     const d = Math.min(dt, 0.05);
     seeds.forEach((s, i) => {
-      s.r -= d * s.speed;
+      s.r -= d * s.speed * trebleChaos;
       if (s.r < 1.15) {
         // The point reached the microphone shell — cancelled.
         s.r = 6.5 + Math.random() * 1.5;
@@ -318,7 +322,8 @@ export function PowerSystem() {
     const energy =
       win(p, at(T.power, 0.08), at(T.power, 0.25)) *
       (1 - win(p, at(T.power, 0.82), T.power.end));
-    const pulse = 1.6 + Math.sin(clock.elapsedTime * 7) * 0.9;
+    const bassPulse = audioData.bass * 0.8;
+    const pulse = 1.6 + Math.sin(clock.elapsedTime * 7) * 0.9 + bassPulse;
     tubeMats.current.forEach((m) => {
       if (m) m.emissiveIntensity = energy * pulse;
     });
@@ -639,15 +644,17 @@ export function GrapheneLattice() {
     const visibility =
       win(p, at(T.graphene, 0.15), at(T.graphene, 0.25)) *
       (1 - win(p, at(T.aluminium, 0.85), T.aluminium.end));
-    if (matRef.current) matRef.current.opacity = visibility * 0.85;
+    const audioShimmer = 1 + audioData.overall * 0.5;
+    if (matRef.current) matRef.current.opacity = visibility * 0.85 * audioShimmer;
     const geo = ref.current?.geometry as THREE.BufferGeometry | undefined;
     const attr = geo?.getAttribute("position") as THREE.BufferAttribute | undefined;
     if (!attr) return;
     const t = clock.elapsedTime;
     seeds.forEach((s, i) => {
-      positions[i * 3] = s.x + Math.sin(t * s.drift + s.phase) * 0.12;
-      positions[i * 3 + 1] = s.y + Math.cos(t * s.drift * 0.7 + s.phase) * 0.08;
-      positions[i * 3 + 2] = s.z + Math.sin(t * s.drift * 0.5) * 0.04;
+      const jitter = audioData.bass * 0.08;
+      positions[i * 3] = s.x + Math.sin(t * s.drift + s.phase) * (0.12 + jitter);
+      positions[i * 3 + 1] = s.y + Math.cos(t * s.drift * 0.7 + s.phase) * (0.08 + jitter * 0.6);
+      positions[i * 3 + 2] = s.z + Math.sin(t * s.drift * 0.5) * (0.04 + jitter * 0.3);
     });
     attr.needsUpdate = true;
     if (ref.current) ref.current.rotation.y = t * 0.06;
@@ -691,9 +698,10 @@ export function ResonanceRings() {
       win(p, at(T.resonance, 0.08), at(T.resonance, 0.18)) *
       (1 - win(p, at(T.overtones, 0.8), T.overtones.end));
     const t = clock.elapsedTime;
+    const ringBoost = 1 + audioData.mid * 0.4;
     group.current?.children.forEach((child, i) => {
       const phase = ((t * 0.35 + i / RES_RING_COUNT) % 1);
-      child.scale.setScalar(0.4 + phase * 2.2);
+      child.scale.setScalar((0.4 + phase * 2.2) * ringBoost);
       child.rotation.x = Math.PI / 2 + Math.sin(t * 0.3 + i) * 0.15;
       child.rotation.z = t * 0.08 + i * 0.3;
       const m = mats.current[i];

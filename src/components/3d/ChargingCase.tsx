@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 import { scrollState, computeCaseOpen, win, T } from "@/lib/scrollState";
+import { viewportModeState, type ViewportMode } from "@/components/ui/HUDViewportMode";
 
 /**
  * The vessel. A premium charging case, procedurally modelled:
@@ -32,6 +33,14 @@ export default function ChargingCase() {
   const ledMat = useRef<THREE.MeshStandardMaterial>(null);
   const seamMat = useRef<THREE.MeshStandardMaterial>(null);
   const sweepBand = useRef<THREE.Mesh>(null);
+  const bodyMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const lidMatRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const viewportModeRef = useRef<ViewportMode>(viewportModeState.current);
+
+  useEffect(() => {
+    const unsub = viewportModeState.subscribe((m) => { viewportModeRef.current = m; });
+    return () => { unsub(); };
+  }, []);
 
   useFrame(({ clock }) => {
     const p = scrollState.progress;
@@ -74,6 +83,32 @@ export default function ChargingCase() {
     if (root.current) {
       root.current.position.y = -drop * 3.2;
     }
+
+    // Viewport mode: wireframe / thermal / studio
+    const vm = viewportModeRef.current;
+    const isWire = vm === "wireframe";
+    const isTherm = vm === "thermal";
+    const thermalCol = isTherm
+      ? new THREE.Color().setHSL(0.58, 0.85, 0.45)
+      : new THREE.Color("#0d0e11");
+    const lidCol = isTherm
+      ? new THREE.Color().setHSL(0.52, 0.8, 0.4)
+      : new THREE.Color("#0b0c0f");
+
+    if (bodyMatRef.current) {
+      bodyMatRef.current.wireframe = isWire;
+      bodyMatRef.current.opacity = isWire ? 0.3 : 1;
+      bodyMatRef.current.color.copy(thermalCol);
+      bodyMatRef.current.emissive.copy(isTherm ? thermalCol : new THREE.Color("#000000"));
+      bodyMatRef.current.emissiveIntensity = isTherm ? 0.15 : 0;
+    }
+    if (lidMatRef.current) {
+      lidMatRef.current.wireframe = isWire;
+      lidMatRef.current.opacity = isWire ? 0.3 : 1;
+      lidMatRef.current.color.copy(lidCol);
+      lidMatRef.current.emissive.copy(isTherm ? lidCol : new THREE.Color("#000000"));
+      lidMatRef.current.emissiveIntensity = isTherm ? 0.15 : 0;
+    }
   });
 
   return (
@@ -81,12 +116,15 @@ export default function ChargingCase() {
       {/* ---------- Body ---------- */}
       <RoundedBox args={[BODY_W, BODY_H, BODY_D]} radius={0.16} smoothness={6}>
         <meshPhysicalMaterial
+          ref={bodyMatRef}
           color="#0d0e11"
           metalness={0.85}
           roughness={0.18}
           clearcoat={1}
           clearcoatRoughness={0.08}
           envMapIntensity={1.3}
+          transparent
+          opacity={1}
         />
       </RoundedBox>
 
@@ -151,12 +189,15 @@ export default function ChargingCase() {
           position={[0, LID_H / 2 - 0.02, -HINGE_Z]}
         >
           <meshPhysicalMaterial
+            ref={lidMatRef}
             color="#0b0c0f"
             metalness={0.85}
             roughness={0.16}
             clearcoat={1}
             clearcoatRoughness={0.06}
             envMapIntensity={1.35}
+            transparent
+            opacity={1}
           />
         </RoundedBox>
         {/* Aura wordmark plate on the lid */}
