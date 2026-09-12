@@ -1,0 +1,495 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --color-aura-cyan: #57e6ff;
+  --color-aura-amber: #ffb45e;
+  --color-aura-violet: #b48cff;
+  --color-aura-red: #ff6a4d;
+}
+
+:root {
+  --background: #000;
+  --foreground: #fff;
+}
+
+html {
+  background: #000;
+  scroll-behavior: auto; /* Lenis owns scrolling */
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+canvas {
+  touch-action: pan-y;
+}
+
+/* Hide the native cursor when the custom one is active (fine pointers) */
+.no-native-cursor,
+.no-native-cursor * {
+  cursor: none !important;
+}
+
+/* Outlined display type */
+.text-stroke {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.25);
+  color: transparent;
+}
+
+/* Blueprint grid backdrop for scene density */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* Cinematic letterbox bars (toggled after first scroll) */
+.letterbox::before,
+.letterbox::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 4.5vh;
+  background: #000;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 1.2s ease;
+}
+.letterbox::before { top: 0; }
+.letterbox::after { bottom: 0; }
+html:not(.letterbox) body::before,
+html:not(.letterbox) body::after { opacity: 0; }
+
+/* Engineering scanlines overlay — visible only early on */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+  transition: opacity 1.6s ease;
+}
+html.scanned .scanlines { opacity: 1; }
+html:not(.scanned) .scanlines { opacity: 0; }
+
+/* Focal cyan halo behind hero headlines */
+.aura-halo {
+  position: absolute;
+  inset: -10% -20%;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(87, 230, 255, 0.10), transparent 60%);
+  pointer-events: none;
+}
+
+/* Vignette wrapper around the experience */
+.vignette-wrap::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.55) 100%);
+}
+
+/* Act-transition cyan wipe line */
+.act-wipe {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, #57e6ff 30%, #57e6ff 70%, transparent);
+  box-shadow: 0 0 18px rgba(87, 230, 255, 0.7);
+  z-index: 70;
+  pointer-events: none;
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+/* CTA glow pulse */
+.cta-glow {
+  box-shadow: 0 0 0 rgba(87, 230, 255, 0);
+  animation: ctaPulse 2.6s ease-in-out infinite;
+}
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(87, 230, 255, 0); }
+  50% { box-shadow: 0 0 40px rgba(87, 230, 255, 0.4); }
+}
+
+/* Loading screen */
+.aura-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.6s ease;
+}
+.aura-loader.hidden { opacity: 0; pointer-events: none; }
+.aura-loader-bar {
+  width: 160px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.aura-loader-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #57e6ff, transparent);
+  animation: loaderSweep 1.4s ease-in-out infinite;
+}
+@keyframes loaderSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* HUD act notch on progress rail */
+.hud-act-notch {
+  position: absolute;
+  left: -3px;
+  width: 7px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+::selection {
+  background: white;
+  color: black;
+}
+
+/* Focus visibility for keyboard users on cursor-disabled elements */
+.no-native-cursor [data-hover]:focus-visible,
+.no-native-cursor button:focus-visible,
+.no-native-cursor a:focus-visible {
+  outline: 1px solid #57e6ff;
+  outline-offset: 4px;
+}
+
+/* ================================================================
+   CINEMATIC ANIMATION FOUNDATION
+   Every keyframe below powers the immersive storytelling system.
+   ================================================================ */
+
+/* --- Text reveal animations --- */
+@keyframes charReveal {
+  0% { transform: translateY(120%) rotateX(-60deg); opacity: 0; filter: blur(8px); }
+  60% { transform: translateY(-5%) rotateX(5deg); opacity: 1; filter: blur(0); }
+  100% { transform: translateY(0) rotateX(0); opacity: 1; filter: blur(0); }
+}
+
+@keyframes wordReveal {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes lineReveal {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+
+@keyframes fadeSlideUp {
+  0% { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideDown {
+  0% { opacity: 0; transform: translateY(-40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeScale {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* --- Parallax & motion --- */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(0.5deg); }
+  66% { transform: translateY(4px) rotate(-0.3deg); }
+}
+
+@keyframes floatMedium {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.02); opacity: 1; }
+}
+
+@keyframes driftX {
+  0% { transform: translateX(-5%); }
+  100% { transform: translateX(5%); }
+}
+
+@keyframes driftY {
+  0% { transform: translateY(-3%); }
+  100% { transform: translateY(3%); }
+}
+
+/* --- Light & atmosphere --- */
+@keyframes lightSweep {
+  0% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(87, 230, 255, 0.1); }
+  50% { box-shadow: 0 0 60px rgba(87, 230, 255, 0.35), 0 0 120px rgba(87, 230, 255, 0.15); }
+}
+
+@keyframes rimGlow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+@keyframes scanlinePass {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* --- Particle & noise --- */
+@keyframes particleDrift {
+  0% { transform: translate(0, 0) scale(0); opacity: 0; }
+  20% { opacity: 1; scale: 1; }
+  80% { opacity: 0.6; }
+  100% { transform: translate(var(--dx, 40px), var(--dy, -80px)) scale(0); opacity: 0; }
+}
+
+@keyframes noiseShift {
+  0% { background-position: 0 0; }
+  100% { background-position: 100px 100px; }
+}
+
+/* --- Scene transitions --- */
+@keyframes sceneIn {
+  0% { opacity: 0; transform: translateY(60px) scale(0.97); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes sceneOut {
+  0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.03); filter: blur(6px); }
+}
+
+/* --- Glitch & CRT --- */
+@keyframes glitchFlicker {
+  0%, 100% { opacity: 1; }
+  5% { opacity: 0.8; transform: translateX(2px); }
+  10% { opacity: 1; transform: translateX(-1px); }
+  15% { opacity: 0.9; }
+  20% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes crtScanline {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes pixelDissolve {
+  0% { clip-path: inset(0 0 0 0); filter: brightness(1); }
+  50% { clip-path: inset(0 0 0 0); filter: brightness(2) saturate(0); }
+  100% { clip-path: inset(50% 50% 50% 50%); filter: brightness(3) saturate(0); }
+}
+
+/* --- Premium glass morphism --- */
+.glass-panel {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* --- Cinematic grain overlay --- */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 56;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  animation: noiseShift 8s linear infinite;
+  mix-blend-mode: overlay;
+}
+
+/* --- Horizontal light streak --- */
+.light-streak {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(87, 230, 255, 0.4), transparent);
+  box-shadow: 0 0 30px rgba(87, 230, 255, 0.2);
+  z-index: 57;
+  pointer-events: none;
+  animation: lightSweep 4s ease-in-out infinite;
+}
+
+/* --- Ambient noise texture --- */
+.ambient-noise {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 512px 512px;
+  animation: noiseShift 12s linear infinite;
+}
+
+/* --- Scroll progress gradient bar --- */
+.progress-gradient {
+  background: linear-gradient(
+    180deg,
+    rgba(87, 230, 255, 0.0) 0%,
+    rgba(87, 230, 255, 0.6) 40%,
+    rgba(87, 230, 255, 1.0) 50%,
+    rgba(87, 230, 255, 0.6) 60%,
+    rgba(87, 230, 255, 0.0) 100%
+  );
+}
+
+/* --- Magnetic cursor swell targets --- */
+.magnetic-target {
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.magnetic-target:hover {
+  transform: scale(1.02);
+}
+
+/* --- Scene reveal wrapper with stagger support --- */
+.scene-reveal > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.scene-reveal.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.scene-reveal.is-visible > *:nth-child(1) { transition-delay: 0s; }
+.scene-reveal.is-visible > *:nth-child(2) { transition-delay: 0.08s; }
+.scene-reveal.is-visible > *:nth-child(3) { transition-delay: 0.16s; }
+.scene-reveal.is-visible > *:nth-child(4) { transition-delay: 0.24s; }
+.scene-reveal.is-visible > *:nth-child(5) { transition-delay: 0.32s; }
+.scene-reveal.is-visible > *:nth-child(6) { transition-delay: 0.40s; }
+.scene-reveal.is-visible > *:nth-child(7) { transition-delay: 0.48s; }
+.scene-reveal.is-visible > *:nth-child(8) { transition-delay: 0.56s; }
+
+/* --- Horizontal rule with animated gradient --- */
+.hr-gradient {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(87, 230, 255, 0.3), transparent);
+  border: none;
+}
+
+/* --- Premium button hover glow --- */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+.btn-glow::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, transparent, rgba(87, 230, 255, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+  z-index: -1;
+  border-radius: inherit;
+}
+.btn-glow:hover::after {
+  opacity: 1;
+}
+
+/* ================================================================
+   ACCESSIBILITY — prefers-reduced-motion
+   Users who request reduced motion get static, legible fallbacks
+   with all canvas rotations, particle convergence, SVG animations,
+   and text reveals gracefully simplified.
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Restore native cursor when reduced motion requested */
+  .no-native-cursor,
+  .no-native-cursor * {
+    cursor: auto !important;
+  }
+
+  /* Film grain, light streaks, scanlines — still visible but static */
+  .film-grain,
+  .light-streak,
+  .scanlines,
+  .ambient-noise {
+    animation: none !important;
+  }
+
+  /* Hide custom cursor entirely for reduced-motion users */
+  .custom-cursor-dot,
+  .custom-cursor-ring,
+  .custom-cursor-glow {
+    display: none !important;
+  }
+
+  /* Disable smooth scroll on the Lenis container */
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+}
